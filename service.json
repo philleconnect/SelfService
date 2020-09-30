@@ -1,0 +1,32 @@
+{
+    "containers":[
+        {
+            "name":"selfservice",
+            "hostname":"selfservice",
+            "url":"https://github.com/philleconnect/SelfService/releases/download/1.0.0/selfservice.tar.gz",
+            "ports":[
+                {
+                    "external":8001,
+                    "internal":80
+                }
+            ],
+            "networks":[
+                {
+                    "name":"schoolconnect"
+                },
+                {
+                    "name":"mysql-net"
+                }
+            ],
+            "volumes":[],
+            "environment":[
+                "MYSQL_PASSWORD",
+                "MYSQL_USER",
+                "MYSQL_DATABASE"
+            ]
+        }
+    ],
+    "volumes":[],
+    "networks":[],
+    "environment":[]
+}
