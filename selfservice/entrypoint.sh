@@ -18,7 +18,9 @@ while ! mysqladmin ping -h"main_db" --silent; do
     sleep 1
 done
 echo 'everything is prepared, starting server for selfservice'
-python3 /usr/local/bin/selfservice/main.py &
+cd /usr/local/bin/selfservice
+uwsgi --ini selfservice.ini --lazy &
+cd
 nginx -g 'daemon off;' &
 NGINX_PROCESS=$!
 wait $NGINX_PROCESS

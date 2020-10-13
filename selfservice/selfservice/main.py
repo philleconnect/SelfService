@@ -14,8 +14,14 @@ from flask_login import LoginManager, login_required
 from datetime import timedelta
 
 # Include Models
+import config
 import helpers.essentials as es
 import modules.apiUser as apiUser
+
+# Run first setup
+if not os.path.exists(config.CONFIG_SECRET_KEY):
+    with open(config.CONFIG_SECRET_KEY, "w") as f:
+        f.write(es.randomString(40))
 
 # Include endpoints
 from endpoints.login import loginApi
@@ -29,7 +35,8 @@ SESSION_COOKIE_NAME = "SC_SELFSERVICE_SESSION"
 SESSION_COOKIE_SECURE = False # Set this to true for production (SSL required)
 PERMANENT_SESSION_LIFETIME = 1200
 selfservice.config.from_object(__name__)
-selfservice.secret_key = es.randomString(40)
+with open(config.CONFIG_SECRET_KEY, "r") as f:
+    selfservice.secret_key = f.read()
 login_manager = LoginManager()
 login_manager.init_app(api)
 login_manager.needs_refresh_message = (u"Session timed out, please re-login")
