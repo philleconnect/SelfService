@@ -19,6 +19,8 @@ ADD selfservice /usr/local/bin/selfservice
 ADD ui /var/www/html
 RUN chown -R www-data /var/www/html/
 
+COPY default /etc/nginx/sites-enabled/
+
 RUN mkdir /etc/selfservice
 
 EXPOSE 80
