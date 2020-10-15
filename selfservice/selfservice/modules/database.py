@@ -8,13 +8,9 @@
 import os
 import mysql.connector
 
-# Include modules
-import modules.configfile as cf
-
 # Class definition
 class database:
     def __init__(self):
-        config = cf.configfile()
         self.__db = mysql.connector.connect(
             host = "main_db",
             user = os.environ.get("MYSQL_USER"),
