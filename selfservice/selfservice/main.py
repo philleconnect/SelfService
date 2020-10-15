@@ -38,7 +38,7 @@ selfservice.config.from_object(__name__)
 with open(config.CONFIG_SECRET_KEY, "r") as f:
     selfservice.secret_key = f.read()
 login_manager = LoginManager()
-login_manager.init_app(api)
+login_manager.init_app(selfservice)
 login_manager.needs_refresh_message = (u"Session timed out, please re-login")
 
 @login_manager.user_loader
@@ -54,13 +54,13 @@ def before_request():
 # Register blueprints
 selfservice.register_blueprint(loginApi)
 selfservice.register_blueprint(userApi)
-SelfService.register_blueprint(courseApi)
+selfservice.register_blueprint(courseApi)
 
 # EASTER EGG
-@api.route("/api/coffee", methods=["GET"])
+@selfservice.route("/api/coffee", methods=["GET"])
 def teapot():
     return "I'm a teapot", 418
 
 # Create server
 if __name__ == "__main__":
-    api.run(debug=True, port=8080, threaded=True)
+    selfservice.run(debug=True, port=8080, threaded=True)
