@@ -33,9 +33,11 @@ export default {
   methods: {
     // Data loading
     load: function() {
+      preloader.toggle("LADEN");
       api.send("/api/course/my", "GET", {}).then(function(response) {
         response = JSON.parse(response);
         api.send("/api/permissions/courselist", "GET", {}).then(function(permission) {
+          preloader.hide();
           if (permission == "GRANTED") {
             document.getElementById("table-actions").classList.remove("nodisplay");
             document.getElementById("button-explanation").classList.remove("nodisplay");
