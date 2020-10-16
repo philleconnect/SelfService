@@ -7,10 +7,14 @@
 # Include dependencies
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
+import pdfkit
+import datetime
+import base64
 
 # Include modules
 import modules.database as db
 import modules.permissionCheck as pc
+import helpers.courselist as cl
 
 # Endpoint definition
 courseApi = Blueprint("courseApi", __name__)
@@ -24,15 +28,10 @@ def getMyCourses():
 @courseApi.route("/api/course/detail/<id>", methods=["GET"])
 @login_required
 def getCourseDetail(id):
-    dbconn = db.database()
     pCheck = pc.permissionCheck()
     if not "grouplst" in pCheck.get(current_user.username):
         return "ERR_NOT_ALLOWED", 403
-    course = {}
-    dbconn.execute("SELECT name FROM groups WHERE id = %s", (id,))
-    course["name"] = dbconn.fetchone()["name"]
-    dbconn.execute("SELECT preferredname AS name, email, DATE_FORMAT(birthdate, '%d.%m.%Y') AS birthdate FROM people P INNER JOIN people_has_groups PHG ON P.id = PHG.people_id INNER JOIN groups G ON G.id = PHG.group_id WHERE G.id = %s ORDER BY name", (id,))
-    course["members"] = dbconn.fetchall()
+    course = {"name": cl.getCourseName(id), "members": cl.getCourseDetails(id)}
     return jsonify(course), 200
 
 @courseApi.route("/api/course/csv/<id>", methods=["GET"])
@@ -42,11 +41,8 @@ def getCourseCSV(id):
     pCheck = pc.permissionCheck()
     if not "grouplst" in pCheck.get(current_user.username):
         return "ERR_NOT_ALLOWED", 403
-    csv = {"content": "data:text/csv;charset=utf-8,vorname;nachname;e-mail;geburtsdatum\n"}
-    dbconn.execute("SELECT name FROM groups WHERE id = %s", (id,))
-    csv["name"] = dbconn.fetchone()["name"]
-    dbconn.execute("SELECT firstname, lastname, email, DATE_FORMAT(birthdate, '%d.%m.%Y') AS birthdate FROM people P INNER JOIN people_has_groups PHG ON P.id = PHG.people_id INNER JOIN groups G ON G.id = PHG.group_id WHERE G.id = %s ORDER BY name", (id,))
-    for member in dbconn.fetchall():
+    csv = {"name": cl.getCourseName(id), "content": "data:text/csv;charset=utf-8,Vorname;Nachname;E-Mail;Geburtsdatum\n"}
+    for member in cl.getCourseDetails(id, True):
         row = member["firstname"] + ";" + member["lastname"] + ";" + member["email"] + ";" + member["birthdate"] + "\n"
         csv["content"] += row
     return jsonify(csv), 200
@@ -58,5 +54,27 @@ def getCoursePDF(id):
     pCheck = pc.permissionCheck()
     if not "grouplst" in pCheck.get(current_user.username):
         return "ERR_NOT_ALLOWED", 403
-
-    return None
+    courseName = cl.getCourseName(id)
+    pdf = {"name": courseName, "content": "data:application/pdf;base64,"}
+    tableCode = ""
+    style = False
+    for member in cl.getCourseDetails(id):
+        name = member["name"] if not member["name"] == "" else "-"
+        email = member["email"] if not member["email"] == "" else "-"
+        birthdate = member["birthdate"] if not member["birthdate"] == "" else "-"
+        cssClass = " class=\"alt\"" if style else ""
+        style = not style
+        tableCode += "<tr" + cssClass + "><td>" + name + "</td><td>" + email + "</td><td>" + birthdate + "</td></tr>"
+    htmlCode = "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>Kursliste " + courseName + "</title></head><body><h1>Kursliste " + courseName + "</h1><p>Erzeugt am " + datetime.datetime.now().strftime("%d.%m.%Y um %H:%M:%S") + "</p><div class=\"datagrid\"><table><thead><tr><th style=\"background-color:#1155B9;\">Name</th><th>E-Mail</th><th>Geburtsdatum</th></tr></thead><tbody></tbody>" + tableCode + "</table></div><p>PDF-Datei erzeugt mit PhilleConnect.</p></body></html>"
+    options = {
+        "page-size": "A4",
+        "margin-top": "0.25in",
+        "margin-right": "0.5in",
+        "margin-bottom": "0.25in",
+        "margin-left": "0.5in",
+        "encoding": "UTF-8",
+        "title": "Kursliste " + courseName
+    }
+    pdfCode = pdfkit.from_string(htmlCode, False, options=options, css="/usr/local/bin/selfservice/pdf.css")
+    pdf["content"] += base64.b64encode(pdfCode).decode("UTF-8")
+    return jsonify(pdf), 200
