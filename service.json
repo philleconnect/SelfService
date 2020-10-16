@@ -22,11 +22,43 @@
             "environment":[
                 "MYSQL_PASSWORD",
                 "MYSQL_USER",
-                "MYSQL_DATABASE"
+                "MYSQL_DATABASE",
+                "SMTP_SERVER",
+                "SMTP_PORT",
+                "SMTP_LOGIN",
+                "SMTP_PASSWORD",
+                "SMTP_SENDER"
             ]
         }
     ],
     "volumes":[],
     "networks":[],
-    "environment":[]
+    "environment":[
+        {
+            "name":"SMTP_SERVER",
+            "description":"URL zum SMTP Server.",
+            "mutable":true
+        },
+        {
+            "name":"SMTP_PORT",
+            "description":"Zu verwendender Port auf dem SMTP Server.",
+            "mutable":true,
+            "value":"578"
+        },
+        {
+            "name":"SMTP_LOGIN",
+            "description":"Loginname für den SMTP Server.",
+            "mutable":true
+        },
+        {
+            "name":"SMTP_PASSWORD",
+            "description":"Passwort für den SMTP Server.",
+            "mutable":true
+        },
+        {
+            "name":"SMTP_SENDER",
+            "description":"Absendeadresse für den SMTP Server.",
+            "mutable":true
+        }
+    ]
 }
