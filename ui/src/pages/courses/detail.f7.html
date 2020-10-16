@@ -1,0 +1,51 @@
+<template>
+  <div class="page" data-name="Meine Kurse">
+    <p style="font-family: Arial, sans-serif; font-size: 45px;"><b>KURS</b>LISTE</p>
+    <h3>Kurs: <span id="name"></span></h3>
+    <div class="datagrid">
+      <table id="course">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>E-Mail</th>
+            <th>Geburtsdatum</th>
+          </tr>
+        </thead>
+        <tbody id="table-content"></tbody>
+      </table>
+    </div>
+  </div>
+</template>
+<script>
+import api from '../../js/api.js';
+import preloader from '../../js/preloader.js';
+export default {
+  methods: {
+    // Data loading
+    load: function() {
+      preloader.toggle("LADEN");
+      api.send("/api/course/detail/" + this.$route.params.id, "GET", {}).then(function(response) {
+        response = JSON.parse(response);
+        preloader.hide();
+        document.getElementById("name").innerHTML = response.name;
+        let rows = "";
+        let style = false;
+        for (const member of response.members) {
+          rows += style ? "<tr class=\"alt\">" : "<tr>";
+          style = !style;
+          let name = (member.name == "") ? "-" : member.name;
+          let email = (member.email == "") ? "-" : member.email;
+          let birthdate = (member.birthdate == "") ? "-" : member.birthdate;
+          rows += "<td>" + name + "</td><td>" + email + "</td><td>" + birthdate + "</td></tr>";
+        }
+        document.getElementById("table-content").innerHTML = (rows != "") ? rows : "Keine Mitglieder vorhanden.";
+      }.bind(this));
+    }
+  },
+  on: {
+    pageInit: function() {
+      this.load();
+    }
+  }
+};
+</script>

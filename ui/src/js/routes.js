@@ -7,6 +7,7 @@ import ChangePasswordPage from '../pages/account/password.f7.html';
 
 // Course pages
 import MyCoursesPage from '../pages/courses/my.f7.html';
+import CourseDetailPage from '../pages/courses/detail.f7.html';
 
 import NotFoundPage from '../pages/404.f7.html';
 
@@ -26,6 +27,10 @@ var routes = [
   {
     path: '/courses',
     component: MyCoursesPage,
+  },
+  {
+    path: '/courses/:id',
+    component: CourseDetailPage,
   },
   {
     path: '(.*)',

@@ -49,7 +49,7 @@ export default {
             style = !style;
             rows += "<td>" + course.name + "</td>";
             if (permission == "GRANTED") {
-              rows += "<td><a href=\"#\" data-id=\"" + course["id"] + "\" class=\"get-pdf\"><i class=\"f7-icons icon-default\">doc_text_fill</i></a>&nbsp;&nbsp;&nbsp;<a href=\"#\" data-id=\"" + course["id"] + "\" class=\"get-csv\"><i class=\"f7-icons icon-default\">table_fill</i></a>&nbsp;&nbsp;&nbsp;<a href=\"#\" data-id=\"" + course["id"] + "\" class=\"show-list\"><i class=\"f7-icons icon-default\">ellipsis</i></a></td>";
+              rows += "<td><a href=\"#\" data-id=\"" + course["id"] + "\" class=\"get-pdf\"><i class=\"f7-icons icon-default\">doc_text_fill</i></a>&nbsp;&nbsp;&nbsp;<a href=\"#\" data-id=\"" + course["id"] + "\" class=\"get-csv\"><i class=\"f7-icons icon-default\">table_fill</i></a>&nbsp;&nbsp;&nbsp;<a href=\"#\" onclick=\"window.app.views.main.router.navigate('/courses/" + course["id"] + "')\"><i class=\"f7-icons icon-default\">ellipsis</i></a></td>";
             }
             rows += "</tr>";
           }
@@ -65,11 +65,6 @@ export default {
                 this.getCsv(e.target.parentElement.dataset.id);
               }.bind(this));
             }
-            for (const element of document.getElementsByClassName("show-list")) {
-              element.addEventListener("click", function(e) {
-                this.showDetails(e.target.parentElement.dataset.id);
-              }.bind(this));
-            }
           }
         }.bind(this));
       }.bind(this));
@@ -80,11 +75,6 @@ export default {
 
     },
     getCsv: function(id) {
-
-    },
-
-    // Data detail view
-    showDetails: function(id) {
 
     }
   },
