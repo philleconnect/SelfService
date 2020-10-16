@@ -26,7 +26,11 @@ def getMyCourses():
 def getCourseDetail(id):
     dbconn = db.database()
     pCheck = pc.permissionCheck()
-    if not "grouplst" in pCheck.listForUser(current_user.username):
+    if not "grouplst" in pCheck.get(current_user.username):
         return "ERR_NOT_ALLOWED", 403
-
-    return None
+    course = {}
+    dbconn.execute("SELECT name FROM groups WHERE id = %s", (id,))
+    course["name"] = dbconn.fetchone()["name"]
+    dbconn.execute("SELECT preferredname AS name, email, DATE_FORMAT(birthdate, '%d.%m.%Y') AS birthdate FROM people P INNER JOIN people_has_groups PHG ON P.id = PHG.people_id INNER JOIN groups G ON G.id = PHG.group_id WHERE G.id = %s ORDER BY name", (id,))
+    course["members"] = dbconn.fetchall()
+    return jsonify(course), 200
