@@ -49,7 +49,7 @@ def load_user(user_id):
 @selfservice.before_request
 def before_request():
     session.permanent = True
-    api.permanent_session_lifetime = timedelta(minutes=20)
+    selfservice.permanent_session_lifetime = timedelta(minutes=20)
 
 # Register blueprints
 selfservice.register_blueprint(loginApi)
