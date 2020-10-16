@@ -43,7 +43,7 @@ let login = {
       Swal.close();
       preloader.hide();
       menue.rebuild();
-      window.app.views.main.router.navigate("/welcome", {reloadAll: true});
+      window.app.views.main.router.navigate("/account", {reloadAll: true});
     }, function(error) {
       errormsg.fire(error);
     });

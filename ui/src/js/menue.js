@@ -12,12 +12,12 @@ import api from './api.js';
 // Module definition
 let menue = {
     entries: [
-        ["Mein Account","/account",["usermgmt"],
+        ["Mein Account","/account",["*"],
             [
                 ["Passwort ändern","/account/changepassword"]
             ]
         ],
-        ["Meine Kurse","/courses",["usermgmt"]],
+        ["Meine Kurse","/courses",["*"]],
     ],
     currentUserHasPermission: function(wanted) {
       if (wanted.includes("*")) {
