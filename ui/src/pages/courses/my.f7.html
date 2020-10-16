@@ -1,8 +1,95 @@
 <template>
   <div class="page" data-name="Meine Kurse">
     <p style="font-family: Arial, sans-serif; font-size: 45px;"><b>MEINE</b>KURSE</p>
+    <div id="button-explanation" class="nodisplay">
+      <div class="standalone-container">
+        <i class="f7-icons standalone-icon">doc_text_fill</i><h4 class="standalone-icon-headline">Kursliste als PDF-Datei herunterladen.</h4>
+      </div>
+      <div class="standalone-container">
+        <i class="f7-icons standalone-icon">table_fill</i><h4 class="standalone-icon-headline">Kursliste als CSV-Datei herunterladen. Diese kann in alle gängige Tabellenkalkulationsprogramme (z.B. Excel, Calc, Numbers) importiert werden.</h4>
+      </div>
+      <div class="standalone-container">
+        <i class="f7-icons standalone-icon">ellipsis</i><h4 class="standalone-icon-headline">Kursliste aufrufen.</h4>
+      </div>
+    </div>
+    <div class="datagrid">
+      <table id="courses">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th id="table-actions" class="nodisplay">Aktionen</th>
+          </tr>
+        </thead>
+        <tbody id="table-content"></tbody>
+      </table>
+    </div>
   </div>
 </template>
 <script>
-export default {};
+import api from '../../js/api.js';
+import preloader from '../../js/preloader.js';
+import Swal from 'sweetalert2';
+export default {
+  methods: {
+    // Data loading
+    load: function() {
+      api.send("/api/course/my", "GET", {}).then(function(response) {
+        response = JSON.parse(response);
+        api.send("/api/permissions/courselist", "GET", {}).then(function(permission) {
+          if (permission == "GRANTED") {
+            document.getElementById("table-actions").classList.remove("nodisplay");
+            document.getElementById("button-explanation").classList.remove("nodisplay");
+          }
+          let rows = "";
+          let style = false;
+          for (const course of response) {
+            rows += style ? "<tr class=\"alt\">" : "<tr>";
+            style = !style;
+            rows += "<td>" + course.name + "</td>";
+            if (permission == "GRANTED") {
+              rows += "<td><a href=\"#\" data-id=\"" + course["id"] + "\" class=\"get-pdf\"><i class=\"f7-icons icon-default\">doc_text_fill</i></a>&nbsp;&nbsp;&nbsp;<a href=\"#\" data-id=\"" + course["id"] + "\" class=\"get-csv\"><i class=\"f7-icons icon-default\">table_fill</i></a>&nbsp;&nbsp;&nbsp;<a href=\"#\" data-id=\"" + course["id"] + "\" class=\"show-list\"><i class=\"f7-icons icon-default\">ellipsis</i></a></td>";
+            }
+            rows += "</tr>";
+          }
+          document.getElementById("table-content").innerHTML = (rows != "") ? rows : "Keine Kurse vorhanden.";
+          if (permission == "GRANTED") {
+            for (const element of document.getElementsByClassName("get-pdf")) {
+              element.addEventListener("click", function(e) {
+                this.getPdf(e.target.parentElement.dataset.id);
+              }.bind(this));
+            }
+            for (const element of document.getElementsByClassName("get-csv")) {
+              element.addEventListener("click", function(e) {
+                this.getCsv(e.target.parentElement.dataset.id);
+              }.bind(this));
+            }
+            for (const element of document.getElementsByClassName("show-list")) {
+              element.addEventListener("click", function(e) {
+                this.showDetails(e.target.parentElement.dataset.id);
+              }.bind(this));
+            }
+          }
+        }.bind(this));
+      }.bind(this));
+    },
+
+    // Data download
+    getPdf: function(id) {
+
+    },
+    getCsv: function(id) {
+
+    },
+
+    // Data detail view
+    showDetails: function(id) {
+
+    }
+  },
+  on: {
+    pageInit: function() {
+      this.load();
+    }
+  }
+};
 </script>
