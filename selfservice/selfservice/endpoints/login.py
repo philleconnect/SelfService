@@ -35,3 +35,23 @@ def createSession():
 def removeSession():
     logout_user()
     return "SUCCESS", 200
+
+@loginApi.route("/api/permissions/reset", methods=["GET"])
+@login_required
+def hasResetPermission():
+    pCheck = pc.permissionCheck()
+    permissions = pCheck.get(current_user.username)
+    if "emailrst" in permissions:
+        return "GRANTED", 200
+    else:
+        return "NOT ALLOWED", 200
+
+@loginApi.route("/api/permissions/courselist", methods=["GET"])
+@login_required
+def hasCourselistPermission():
+    pCheck = pc.permissionCheck()
+    permissions = pCheck.get(current_user.username)
+    if "grouplst" in permissions:
+        return "GRANTED", 200
+    else:
+        return "NOT GRANTED", 200
