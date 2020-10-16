@@ -72,10 +72,31 @@ export default {
 
     // Data download
     getPdf: function(id) {
-
+      this.downloadHelper("pdf", id);
     },
     getCsv: function(id) {
-
+      this.downloadHelper("csv", id);
+    },
+    downloadHelper: function(type, id) {
+      Swal.fire({
+        title: type.toUpperCase() + "-Datei wird erstellt...",
+        showCancelButton: false,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        willOpen: function() {
+          Swal.showLoading()
+          api.send("/api/course/" + type + "/" + id, "GET", {}).then(function(response) {
+            response = JSON.parse(response);
+            let encodedUri = encodeURI(response.content);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Kursliste_" + response.name + "." + type);
+            document.body.appendChild(link);
+            link.click();
+            Swal.close();
+          }.bind(this));
+        }.bind(this)
+      });
     }
   },
   on: {

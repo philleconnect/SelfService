@@ -34,3 +34,29 @@ def getCourseDetail(id):
     dbconn.execute("SELECT preferredname AS name, email, DATE_FORMAT(birthdate, '%d.%m.%Y') AS birthdate FROM people P INNER JOIN people_has_groups PHG ON P.id = PHG.people_id INNER JOIN groups G ON G.id = PHG.group_id WHERE G.id = %s ORDER BY name", (id,))
     course["members"] = dbconn.fetchall()
     return jsonify(course), 200
+
+@courseApi.route("/api/course/csv/<id>", methods=["GET"])
+@login_required
+def getCourseCSV(id):
+    dbconn = db.database()
+    pCheck = pc.permissionCheck()
+    if not "grouplst" in pCheck.get(current_user.username):
+        return "ERR_NOT_ALLOWED", 403
+    csv = {"content": "data:text/csv;charset=utf-8,vorname;nachname;e-mail;geburtsdatum\n"}
+    dbconn.execute("SELECT name FROM groups WHERE id = %s", (id,))
+    csv["name"] = dbconn.fetchone()["name"]
+    dbconn.execute("SELECT firstname, lastname, email, DATE_FORMAT(birthdate, '%d.%m.%Y') AS birthdate FROM people P INNER JOIN people_has_groups PHG ON P.id = PHG.people_id INNER JOIN groups G ON G.id = PHG.group_id WHERE G.id = %s ORDER BY name", (id,))
+    for member in dbconn.fetchall():
+        row = member["firstname"] + ";" + member["lastname"] + ";" + member["email"] + ";" + member["birthdate"] + "\n"
+        csv["content"] += row
+    return jsonify(csv), 200
+
+@courseApi.route("/api/course/pdf/<id>", methods=["GET"])
+@login_required
+def getCoursePDF(id):
+    dbconn = db.database()
+    pCheck = pc.permissionCheck()
+    if not "grouplst" in pCheck.get(current_user.username):
+        return "ERR_NOT_ALLOWED", 403
+
+    return None
