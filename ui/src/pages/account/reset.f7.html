@@ -1,0 +1,196 @@
+<template>
+  <div class="page" data-name="Schülerpasswort zurücksetzen">
+    <p style="font-family: Arial, sans-serif; font-size: 45px;"><b>SCHÜLERPASSWORT</b>ZURÜCKSETZEN</p>
+    <div class="progress-container" id="progress">
+      <div class="progress-wrapper">
+        <div class="arrow-steps clearfix">
+          <div class="step current"><span>Nutzer auswählen</span></div>
+          <div class="step"><span>Neues Passwort wählen</span></div>
+          <div class="step"><span>Authentifizieren</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="steps-content">
+      <div class="steps-content-box current" id="step-1">
+        <h3>Bitte wählen Sie einen Nutzer aus. Die Tabelle kann mit dem Textfeld in Zeile 1 durchsucht werden (bitte Enter drücken, um die Suche zu starten):</h3>
+        <div class="datagrid">
+          <table id="user-table">
+            <thead>
+              <tr>
+                <th>Nutzer</th>
+              </tr>
+            </thead>
+            <tbody id="users"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="steps-content-box disabled" id="step-2">
+        <h3>Bitte geben Sie hier ein neues Passwort ein:</h3>
+        <div class="input-group">
+          <input type="password" id="password1" required @input="checkPassword()"/>
+          <span class="input-bar"></span>
+          <label>Neues Passwort</label>
+        </div>
+        <p>Aus Sicherheitsgründen muss das neue Passwort folgende Voraussetzungen erfüllen:</p>
+        <div class="standalone-container">
+          <i id="length-valid" class="f7-icons standalone-icon nodisplay" style="color: green;">checkmark_circle_fill</i>
+          <i id="length-invalid" class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i>
+          <h4 class="standalone-icon-headline">Mindestens 8 Zeichen.</h4>
+        </div>
+        <div class="standalone-container">
+          <i id="lowercase-valid" class="f7-icons standalone-icon nodisplay" style="color: green;">checkmark_circle_fill</i>
+          <i id="lowercase-invalid" class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i>
+          <h4 class="standalone-icon-headline">Mindestens einen Kleinbuchstaben.</h4>
+        </div>
+        <div class="standalone-container">
+          <i id="uppercase-valid" class="f7-icons standalone-icon nodisplay" style="color: green;">checkmark_circle_fill</i>
+          <i id="uppercase-invalid" class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i>
+          <h4 class="standalone-icon-headline">Mindestens einen Großbuchstaben.</h4>
+        </div>
+        <div class="standalone-container">
+          <i id="number-valid" class="f7-icons standalone-icon nodisplay" style="color: green;">checkmark_circle_fill</i>
+          <i id="number-invalid" class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i>
+          <h4 class="standalone-icon-headline">Mindestens eine Zahl.</h4>
+        </div>
+        <div class="input-group">
+          <input type="password" id="password2" required @input="checkPassword()"/>
+          <span class="input-bar"></span>
+          <label>Neues Passwort wiederholen</label>
+        </div>
+        <div id="same" class="standalone-container nodisplay">
+          <i class="f7-icons standalone-icon" style="color: green;">checkmark_circle_fill</i><h4 class="standalone-icon-headline">Passwörter stimmen überein.</h4>
+        </div>
+        <div id="not-same" class="standalone-container nodisplay">
+          <i class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i><h4 class="standalone-icon-headline">Passwörter stimmen nicht überein.</h4>
+        </div>
+        <br />
+        <button @click="back()">Zurück</button>
+        <button @click="finish2()">Weiter</button>
+      </div>
+      <div class="steps-content-box disabled" id="step-3">
+        <h3>Bitte geben Sie zur Authentifizierung ihr Passwort ein:</h3>
+        <div class="input-group">
+          <input type="password" id="passwd" required @input="checkPassword()"/>
+          <span class="input-bar"></span>
+          <label>Ihr Passwort</label>
+        </div>
+        <br />
+        <button @click="reset()">Passwort zurücksetzen</button>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import api from '../../js/api.js';
+import passwordcheck from '../../js/passwordcheck.js';
+import preloader from '../../js/preloader.js';
+import Swal from 'sweetalert2';
+import progress from '../../js/progress.js';
+import tableSearch from '../../js/tablesearch.js';
+let users = null;
+let selectedUser = null;
+let search = null;
+export default {
+  methods: {
+    // Data loading
+    load: function() {
+      preloader.toggle("LADEN");
+      progress.setup();
+      api.send("/api/user/list", "GET", {}).then(function(response) {
+        response = JSON.parse(response);
+        preloader.hide();
+        users = response;
+        let rows = "";
+        let style = false;
+        for (const user of users) {
+          rows += style ? "<tr class=\"alt\">" : "<tr>";
+          style = !style;
+          rows += "<td><a href=\"#\" data-id=\"" + user.id + "\" class=\"user-select\">" + user.name + "</a></td></tr>";
+        }
+        document.getElementById("users").innerHTML = rows;
+        for (const element of document.getElementsByClassName("user-select")) {
+          element.addEventListener("click", function(e) {
+            this.finish1(e.target.dataset.id);
+          }.bind(this));
+        }
+        this.loadSearch();
+      }.bind(this));
+    },
+
+    // Check password requirements and equality
+    checkPassword: function() {
+      passwordcheck.check();
+    },
+
+    // Progress control
+    finish1: function(id) {
+      selectedUser = id;
+      progress.next();
+    },
+    finish2: function() {
+      if (!passwordcheck.checkEquality()) {
+        Swal.fire({
+          title: "Die Passwörter stimmen nicht überein.",
+          text: "Bitte überprüfen Sie die eingegebenen Passwörter.",
+          icon: "warning"
+        })
+      } else if (!passwordcheck.check8OrMore() || !passwordcheck.checkLowercase() || !passwordcheck.checkUppercase() || !passwordcheck.checkNumber()) {
+        Swal.fire({
+          title: "Das neue Passwort erfüllt nicht alle Voraussetzungen.",
+          text: "Bitte überprüfen Sie das neue Passwort.",
+          icon: "warning"
+        })
+      } else {
+        progress.next();
+      }
+    },
+    back: function() {
+      progress.prev();
+    },
+
+    // Data search
+    loadSearch: function() {
+      if (search != null) {
+        search.disable();
+      }
+      search = new tableSearch("user-table", {});
+    },
+
+    // Reset password
+    reset: function() {
+      if (document.getElementById("passwd").value == "") {
+        Swal.fire({
+          title: "Bitte geben Sie ihr Passwort zur Authentifizierung ein.",
+          icon: "warning"
+        })
+      } else {
+        Swal.fire({
+          title: "Passwort wirklich zurücksetzen?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: 'Passwort zurücksetzen',
+          cancelButtonText: 'Abbrechen',
+          confirmButtonColor: '#1155BC',
+          preConfirm: function() {
+            return new Promise(function(resolve) {
+              api.send("/api/user/resetpassword/" + selectedUser, "PUT", {password1: document.getElementById("password1").value, password2: document.getElementById("password2").value, passwd: document.getElementById("passwd").value}).then(function(response) {
+                Swal.fire({
+                  title: "Passwort erfolgreich zurückgesetzt.",
+                  icon: "success",
+                }).then(function() {
+                  window.app.views.main.router.navigate("/account");
+                }.bind(this));
+              }.bind(this));
+            }.bind(this))
+          }.bind(this)
+        });
+      }
+    }
+  },
+  on: {
+    pageInit: function() {
+      this.load();
+    }
+  }
+};
+</script>

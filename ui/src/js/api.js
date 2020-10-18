@@ -64,7 +64,7 @@ let api = {
       for (let key in data) {
         formData.append(key, data[key])
       }
-      request.open(type, url, true);
+      request.open(type, "http://172.16.0.25:8001" + url, true);
       request.send(formData);
     }.bind(this))
   },

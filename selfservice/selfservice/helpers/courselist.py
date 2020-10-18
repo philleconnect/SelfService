@@ -4,9 +4,6 @@
 # Course list functions
 # © 2020 Johannes Kreutz.
 
-# Include dependencies
-
-
 # Include modules
 import modules.database as db
 

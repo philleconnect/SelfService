@@ -27,7 +27,8 @@
                 "SMTP_PORT",
                 "SMTP_LOGIN",
                 "SMTP_PASSWORD",
-                "SMTP_SENDER"
+                "SMTP_SENDER",
+                "EMAIL_RESET_ENABLED"
             ]
         }
     ],
@@ -58,6 +59,11 @@
         {
             "name":"SMTP_SENDER",
             "description":"Absendeadresse für den SMTP Server.",
+            "mutable":true
+        },
+        {
+            "name":"EMAIL_RESET_ENABLED",
+            "description":"Schalter für E-Mail Resetfunktion. Wird mittels 'true' aktiviert.",
             "mutable":true
         }
     ]

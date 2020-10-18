@@ -19,6 +19,8 @@
 <script>
 import api from '../../js/api.js';
 import preloader from '../../js/preloader.js';
+import tableSearch from '../../js/tablesearch.js';
+let search = null;
 export default {
   methods: {
     // Data loading
@@ -39,8 +41,17 @@ export default {
           rows += "<td>" + name + "</td><td>" + email + "</td><td>" + birthdate + "</td></tr>";
         }
         document.getElementById("table-content").innerHTML = (rows != "") ? rows : "Keine Mitglieder vorhanden.";
+        this.loadSearch();
       }.bind(this));
-    }
+    },
+
+    // Data search
+    loadSearch: function() {
+      if (search != null) {
+        search.disable();
+      }
+      search = new tableSearch("course", {});
+    },
   },
   on: {
     pageInit: function() {

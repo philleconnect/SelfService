@@ -39,7 +39,9 @@ let login = {
     window.isLoggedIn = false;
     api.send("/api/login", "POST", {uname: document.getElementById("swal-input1").value, passwd: document.getElementById("swal-input2").value}).then(function(response) {
       window.isLoggedIn = true;
-      window.currentUserPermissions = JSON.parse(response);
+      response = JSON.parse(response)
+      window.currentUserPermissions = response.permissions;
+      window.currentUserGroups = response.groups;
       Swal.close();
       preloader.hide();
       menue.rebuild();

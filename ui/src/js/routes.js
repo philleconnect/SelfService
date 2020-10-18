@@ -4,6 +4,7 @@ import HomePage from '../pages/home.f7.html';
 // Account pages
 import MyAccountPage from '../pages/account/my.f7.html';
 import ChangePasswordPage from '../pages/account/password.f7.html';
+import ResetPasswordPage from '../pages/account/reset.f7.html';
 
 // Course pages
 import MyCoursesPage from '../pages/courses/my.f7.html';
@@ -23,6 +24,10 @@ var routes = [
   {
     path: '/account/changepassword',
     component: ChangePasswordPage,
+  },
+  {
+    path: '/account/resetpassword',
+    component: ResetPasswordPage,
   },
   {
     path: '/courses',

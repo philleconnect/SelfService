@@ -9,6 +9,7 @@ import '../css/input.css';
 import '../css/preloader.css';
 import '../css/responsivenav.css';
 import '../css/table.css';
+import '../css/progress.css';
 
 // Import libraries
 import Swal from 'sweetalert2';

@@ -29,6 +29,8 @@
 import api from '../../js/api.js';
 import preloader from '../../js/preloader.js';
 import Swal from 'sweetalert2';
+import tableSearch from '../../js/tablesearch.js';
+let search = null;
 export default {
   methods: {
     // Data loading
@@ -66,8 +68,19 @@ export default {
               }.bind(this));
             }
           }
+          this.loadSearch();
         }.bind(this));
       }.bind(this));
+    },
+
+    // Data search
+    loadSearch: function() {
+      if (search != null) {
+        search.disable();
+      }
+      search = new tableSearch("courses", {
+        col_1: "none"
+      });
     },
 
     // Data download

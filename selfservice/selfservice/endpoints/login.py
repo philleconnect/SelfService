@@ -13,6 +13,7 @@ import passlib.hash
 import modules.database as db
 import modules.apiUser as apiUser
 import modules.permissionCheck as pc
+import modules.groupMembership as gm
 
 # Endpoint definition
 loginApi = Blueprint("loginApi", __name__)
@@ -27,7 +28,8 @@ def createSession():
         user = apiUser.apiUser(results[0]["id"])
         login_user(user)
         pCheck = pc.permissionCheck()
-        return jsonify(pCheck.get(current_user.username)), 200
+        gMember = gm.groupMembership()
+        return jsonify({"permissions":pCheck.get(current_user.username),"groups":gMember.getGroupsOfUser(current_user.username)}), 200
     else:
         return "ERR_ACCESS_DENIED", 401
 
@@ -42,6 +44,33 @@ def hasResetPermission():
     pCheck = pc.permissionCheck()
     permissions = pCheck.get(current_user.username)
     if "emailrst" in permissions:
+        return "GRANTED", 200
+    else:
+        return "NOT ALLOWED", 200
+
+@loginApi.route("/api/permissions/resetenabled", methods=["GET"])
+@login_required
+def resetEnabled():
+    if lower(os.environ.get("EMAIL_RESET_ENABLED")) == "true":
+        return "ENABLED", 200
+    else:
+        return "DISABLED", 200
+
+@loginApi.route("/api/permissions/isteacher", methods=["GET"])
+@login_required
+def isTeacher():
+    gMember = gm.groupMembership()
+    if gMember.checkGroupMembership(current_user.username, "teachers"):
+        return "GRANTED", 200
+    else:
+        return "NOT ALLOWED", 200
+
+@loginApi.route("/api/permissions/teacherreset/<id>", methods=["GET"])
+@login_required
+def canBeTeacherResetted(id):
+    pCheck = pc.permissionCheck()
+    permissions = pCheck.get(current_user.username)
+    if "pwalwrst" in permissions:
         return "GRANTED", 200
     else:
         return "NOT ALLOWED", 200

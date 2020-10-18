@@ -14,7 +14,8 @@ let menue = {
     entries: [
         ["Mein Account","/account",["*"],
             [
-                ["Passwort ändern","/account/changepassword"]
+                ["Passwort ändern","/account/changepassword"],
+                ["Schülerpasswort zurücksetzen","/account/resetpassword",["teachers"]]
             ]
         ],
         ["Meine Kurse","/courses",["*"]],
@@ -30,6 +31,17 @@ let menue = {
       }
       return false;
     },
+    currentUserIsMemberOf: function(wanted) {
+      if (wanted.includes("*")) {
+        return true;
+      }
+      for (const group of wanted) {
+        if (window.currentUserGroups.includes(group)) {
+          return true;
+        }
+      }
+      return false;
+    },
     rebuild: function() {
       if (window.isLoggedIn) {
         document.getElementById("menue").innerHTML = "";
@@ -38,7 +50,9 @@ let menue = {
             document.getElementById("menue").innerHTML += "<li id=\"menu-" + element[0] + "\" class=\"menu-item\"><a href=\"#\" onclick=\"window.app.views.main.router.navigate('" + element[1] + "')\">" + element[0] + "</a></li>";
             if (element.length > 3) {
               for (const subelement of element[3]) {
-                document.getElementById("menue").innerHTML += "<li id=\"menu-" + subelement[0] + "\" class=\"menu-item\"><a href=\"#\" onclick=\"window.app.views.main.router.navigate('" + subelement[1] + "')\" class=\"subnav\">" + subelement[0] + "</a></li>";
+                if (subelement[2] == null || this.currentUserIsMemberOf(subelement[2])) {
+                  document.getElementById("menue").innerHTML += "<li id=\"menu-" + subelement[0] + "\" class=\"menu-item\"><a href=\"#\" onclick=\"window.app.views.main.router.navigate('" + subelement[1] + "')\" class=\"subnav\">" + subelement[0] + "</a></li>";
+                }
               }
             }
           }
