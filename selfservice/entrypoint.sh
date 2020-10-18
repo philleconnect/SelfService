@@ -14,12 +14,12 @@ chmod 0777 /home/*
 echo $MANAGEMENT_APIS_SHARED_SECRET > /etc/selfservice/managementsecret.txt
 
 # generate https key and certificate
-if [ ! -f /etc/pc_admin/privkey.pem ]; then
-    openssl genrsa -out /etc/pc_admin/privkey.pem 2048
-    openssl req -new -x509 -key /etc/pc_admin/privkey.pem -out /etc/pc_admin/cacert.pem -days 36500 -subj "/C=DE/ST=Germany/L=Germany/O=SchoolConnect/OU=Schulserver/CN=example.com"
+if [ ! -f /etc/selfservice/privkey.pem ]; then
+    openssl genrsa -out /etc/selfservice/privkey.pem 2048
+    openssl req -new -x509 -key /etc/selfservice/privkey.pem -out /etc/selfservice/cacert.pem -days 36500 -subj "/C=DE/ST=Germany/L=Germany/O=SchoolConnect/OU=Schulserver/CN=example.com"
 fi
-cp /etc/pc_admin/privkey.pem /etc/nginx/privkey.pem
-cp /etc/pc_admin/cacert.pem /etc/nginx/cacert.pem
+cp /etc/selfservice/privkey.pem /etc/nginx/privkey.pem
+cp /etc/selfservice/cacert.pem /etc/nginx/cacert.pem
 
 echo "waiting for database..."
 while ! mysqladmin ping -h"main_db" --silent; do
