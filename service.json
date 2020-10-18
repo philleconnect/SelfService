@@ -28,6 +28,7 @@
                 "SMTP_LOGIN",
                 "SMTP_PASSWORD",
                 "SMTP_SENDER",
+                "EXTERNAL_DOMAIN",
                 "EMAIL_RESET_ENABLED"
             ]
         }
@@ -59,6 +60,11 @@
         {
             "name":"SMTP_SENDER",
             "description":"Absendeadresse für den SMTP Server.",
+            "mutable":true
+        },
+        {
+            "name":"EXTERNAL_DOMAIN",
+            "description":"Die externe Domain, unter der PhilleConnect SelfService erreichbar ist. Beispiel: bei https://selfservice.beispiel.de/ muss hier 'selfservice.beispiel.de' eingetragen werden.",
             "mutable":true
         },
         {
