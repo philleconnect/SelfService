@@ -17,14 +17,14 @@ import modules.groupMembership as gm
 
 # Endpoint definition
 userApi = Blueprint("userApi", __name__)
-@userApi.route("/api/user/data", methods=["GET", "PUT"])
+@userApi.route("/api/user/data", methods=["GET"])
 @login_required
 def myData():
     dbconn = db.database()
     dbconn.execute("SELECT id, username, firstname, lastname, DATE_FORMAT(birthdate, '%d.%m.%Y') AS birthdate, email FROM people WHERE username = %s LIMIT 1", (current_user.username,))
     return jsonify(dbconn.fetchone()), 200
 
-@userApi.route("/api/user/email", methods=["PUT"])
+@userApi.route("/api/user/email", methods=["POST"])
 @login_required
 def saveEmail(id):
     dbconn = db.database()
@@ -33,7 +33,7 @@ def saveEmail(id):
         return "ERR_DATABASE_ERROR", 500
     return "SUCCESS", 200
 
-@userApi.route("/api/user/password", methods=["PUT"])
+@userApi.route("/api/user/password", methods=["POST"])
 @login_required
 def updatePassword():
     dbconn = db.database()
@@ -59,7 +59,7 @@ def listUsers():
         users.append({"id":user["id"],"name":user["preferredname"] + " (" + user["username"] + ")"})
     return jsonify(users), 200
 
-@userApi.route("/api/user/resetpassword/<id>", methods=["PUT"])
+@userApi.route("/api/user/resetpassword/<id>", methods=["POST"])
 @login_required
 def resetPassword(id):
     gMember = gm.groupMembership()

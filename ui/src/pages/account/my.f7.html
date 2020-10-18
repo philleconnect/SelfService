@@ -76,7 +76,7 @@ export default {
           confirmButtonColor: '#1155BC',
           preConfirm: function() {
             return new Promise(function(resolve) {
-              api.send("/api/user/email", "PUT", {email: document.getElementById("email").value}).then(function(response) {
+              api.send("/api/user/email", "POST", {email: document.getElementById("email").value}).then(function(response) {
                 Swal.fire({
                   title: "E-Mail Adresse erfolgreich gespeichert.",
                   icon: "success",

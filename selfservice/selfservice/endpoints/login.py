@@ -8,6 +8,7 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 import passlib.hash
+import os
 
 # Include modules
 import modules.database as db
@@ -49,9 +50,9 @@ def hasResetPermission():
         return "NOT ALLOWED", 200
 
 @loginApi.route("/api/permissions/resetenabled", methods=["GET"])
-@login_required
 def resetEnabled():
-    if lower(os.environ.get("EMAIL_RESET_ENABLED")) == "true":
+    isResetEnabled = os.environ.get("EMAIL_RESET_ENABLED")
+    if isResetEnabled.lower() == "true":
         return "ENABLED", 200
     else:
         return "DISABLED", 200
