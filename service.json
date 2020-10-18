@@ -8,6 +8,10 @@
                 {
                     "external":8001,
                     "internal":80
+                },
+                {
+                    "external":450,
+                    "internal":443
                 }
             ],
             "networks":[
