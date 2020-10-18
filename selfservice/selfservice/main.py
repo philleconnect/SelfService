@@ -33,7 +33,7 @@ from endpoints.reset import resetApi
 selfservice = Flask(__name__)
 SESSION_TYPE = "filesystem"
 SESSION_COOKIE_NAME = "SC_SELFSERVICE_SESSION"
-SESSION_COOKIE_SECURE = False # Set this to true for production (SSL required)
+SESSION_COOKIE_SECURE = True
 PERMANENT_SESSION_LIFETIME = 1200
 selfservice.config.from_object(__name__)
 with open(config.CONFIG_SECRET_KEY, "r") as f:
