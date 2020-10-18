@@ -27,6 +27,7 @@ if not os.path.exists(config.CONFIG_SECRET_KEY):
 from endpoints.login import loginApi
 from endpoints.user import userApi
 from endpoints.courses import courseApi
+from endpoints.reset import resetApi
 
 # Manager objects
 selfservice = Flask(__name__)
@@ -55,6 +56,7 @@ def before_request():
 selfservice.register_blueprint(loginApi)
 selfservice.register_blueprint(userApi)
 selfservice.register_blueprint(courseApi)
+selfservice.register_blueprint(resetApi)
 
 # EASTER EGG
 @selfservice.route("/api/coffee", methods=["GET"])
