@@ -1,0 +1,116 @@
+<template>
+  <div class="page" data-name="Passwort vergessen">
+    <p style="font-family: Arial, sans-serif; font-size: 45px;"><b>PASSWORT</b>VERGESSEN</p>
+    <h3>Bitte gib zunächst deinen Nutzernamen ein:</h3>
+    <div class="input-group">
+      <input type="text" id="username" required/>
+      <span class="input-bar"></span>
+      <label>Nutzername</label>
+    </div>
+    <h3>Bitte gib hier dein neues Passwort ein:</h3>
+    <div class="input-group">
+      <input type="password" id="password1" required @input="checkPassword()"/>
+      <span class="input-bar"></span>
+      <label>Neues Passwort</label>
+    </div>
+    <p>Aus Sicherheitsgründen muss dein neues Passwort folgende Voraussetzungen erfüllen:</p>
+    <div class="standalone-container">
+      <i id="length-valid" class="f7-icons standalone-icon nodisplay" style="color: green;">checkmark_circle_fill</i>
+      <i id="length-invalid" class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i>
+      <h4 class="standalone-icon-headline">Mindestens 8 Zeichen.</h4>
+    </div>
+    <div class="standalone-container">
+      <i id="lowercase-valid" class="f7-icons standalone-icon nodisplay" style="color: green;">checkmark_circle_fill</i>
+      <i id="lowercase-invalid" class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i>
+      <h4 class="standalone-icon-headline">Mindestens einen Kleinbuchstaben.</h4>
+    </div>
+    <div class="standalone-container">
+      <i id="uppercase-valid" class="f7-icons standalone-icon nodisplay" style="color: green;">checkmark_circle_fill</i>
+      <i id="uppercase-invalid" class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i>
+      <h4 class="standalone-icon-headline">Mindestens einen Großbuchstaben.</h4>
+    </div>
+    <div class="standalone-container">
+      <i id="number-valid" class="f7-icons standalone-icon nodisplay" style="color: green;">checkmark_circle_fill</i>
+      <i id="number-invalid" class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i>
+      <h4 class="standalone-icon-headline">Mindestens eine Zahl.</h4>
+    </div>
+    <div class="input-group">
+      <input type="password" id="password2" required @input="checkPassword()"/>
+      <span class="input-bar"></span>
+      <label>Neues Passwort wiederholen</label>
+    </div>
+    <div id="same" class="standalone-container nodisplay">
+      <i class="f7-icons standalone-icon" style="color: green;">checkmark_circle_fill</i><h4 class="standalone-icon-headline">Passwörter stimmen überein.</h4>
+    </div>
+    <div id="not-same" class="standalone-container nodisplay">
+      <i class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i><h4 class="standalone-icon-headline">Passwörter stimmen nicht überein.</h4>
+    </div>
+    <br />
+    <button onclick="window.location.reload()">Abbrechen</button>
+    <button @click="reset()">Passwort zurücksetzen</button>
+  </div>
+</template>
+<script>
+import api from '../../js/api.js';
+import passwordcheck from '../../js/passwordcheck.js';
+import Swal from 'sweetalert2';
+export default {
+  methods: {
+    // Check password requirements and equality
+    checkPassword: function() {
+      passwordcheck.check();
+    },
+
+    // Start reset process
+    reset: function() {
+      if (!passwordcheck.checkEquality()) {
+        Swal.fire({
+          title: "Die Passwörter stimmen nicht überein.",
+          text: "Bitte überprüfe die eingegebenen Passwörter.",
+          icon: "warning"
+        })
+      } else if (!passwordcheck.check8OrMore() || !passwordcheck.checkLowercase() || !passwordcheck.checkUppercase() || !passwordcheck.checkNumber()) {
+        Swal.fire({
+          title: "Das neue Passwort erfüllt nicht alle Voraussetzungen.",
+          text: "Bitte überprüfe das neue Passwort.",
+          icon: "warning"
+        })
+      } else if (document.getElementById("username").value == "") {
+        Swal.fire({
+          title: "Bitte gib deinen Benutzernamen ein.",
+          icon: "warning"
+        })
+      } else {
+        Swal.fire({
+          title: "Passwort wirklich zurücksetzen?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: 'Passwort zurücksetzen',
+          cancelButtonText: 'Abbrechen',
+          confirmButtonColor: '#1155BC',
+          closeOnConfirm: false,
+          preConfirm: function() {
+            return new Promise(function(resolve) {
+              api.send("/api/reset/start", "PUT", {username: document.getElementById("username").value, password1: document.getElementById("password1").value, password2: document.getElementById("password2").value}).then(function(response) {
+                Swal.showLoading();
+                Swal.fire({
+                  title: "Vorgang bestätigen",
+                  text: "Es wurde eine E-Mail an die in deinem Account hinterlegte E-Mail Adresse verschickt. Du musst innerhalb der nächsten 24 Stunden auf den Link in dieser E-Mail klicken, um dein neues Passwort zu aktivieren.",
+                  icon: "success"
+                }).then(function() {
+                  window.location.reload();
+                })
+              }.bind(this));
+            }.bind(this))
+          }.bind(this)
+        });
+      }
+    }
+  },
+  on: {
+    pageInit: function() {
+      Swal.close();
+    }
+  }
+};
+</script>

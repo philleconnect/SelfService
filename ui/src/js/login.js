@@ -17,7 +17,7 @@ let login = {
   show: function() {
     Swal.fire({
       title: 'Bitte Nutzerdaten eingeben.',
-      html: '<input type="text" id="swal-input1" placeholder="Nutzername" class="swal2-input"/><input type="password" id="swal-input2" placeholder="Passwort" class="swal2-input"/><br /><a href=\"#\" onclick=\"\" class=\"nodisplay\" id=\"reset-link\">Passwort vergessen</a>',
+      html: '<input type="text" id="swal-input1" placeholder="Nutzername" class="swal2-input"/><input type="password" id="swal-input2" placeholder="Passwort" class="swal2-input"/><br /><a href="#" onclick="window.app.views.main.router.navigate(\'/mailreset\');" class="nodisplay" id="reset-link" tabindex="999999">Passwort vergessen</a>',
       showCancelButton: false,
       confirmButtonText: 'Anmelden',
       showLoaderOnConfirm: true,

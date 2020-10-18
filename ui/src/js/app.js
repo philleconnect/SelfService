@@ -38,8 +38,10 @@ window.app = new Framework7({
   // Events
   on: {
     pageInit: function(page) {
-      timeout.resetClock();
-      menue.markActive(page.name);
+      if (window.isLoggedIn) {
+        timeout.resetClock();
+        menue.markActive(page.name);
+      }
     }
   }
 });
@@ -64,4 +66,12 @@ window.isLoggedIn = false;
 window.currentUserPermissions = [];
 
 // Start app
-login.show();
+let location = window.location.href;
+if (location.includes("mailreset")) {
+  window.app.views.main.router.navigate("/mailreset");
+} else if (location.includes("confirmreset")) {
+  let token = location.split("/confirmreset/")[1];
+  window.app.views.main.router.navigate("/confirmreset/" + token);
+} else {
+  login.show();
+}

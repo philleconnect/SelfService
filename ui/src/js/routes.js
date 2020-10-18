@@ -10,6 +10,10 @@ import ResetPasswordPage from '../pages/account/reset.f7.html';
 import MyCoursesPage from '../pages/courses/my.f7.html';
 import CourseDetailPage from '../pages/courses/detail.f7.html';
 
+// E-Mail password reset
+import MailPasswordReset from '../pages/reset/start.f7.html';
+import ConfirmMailReset from '../pages/reset/confirm.f7.html';
+
 import NotFoundPage from '../pages/404.f7.html';
 
 var routes = [
@@ -36,6 +40,14 @@ var routes = [
   {
     path: '/courses/:id',
     component: CourseDetailPage,
+  },
+  {
+    path: '/mailreset',
+    component: MailPasswordReset,
+  },
+  {
+    path: '/confirmreset/:token',
+    component: ConfirmMailReset,
   },
   {
     path: '(.*)',

@@ -143,7 +143,32 @@ let errormsg = {
       title: "Der aktuell angemeldete Account kann nicht gelöscht werden.",
       text: "",
       showWarningSign: false
-    }
+    },
+    ERR_NO_EMAIL: {
+      title: "In deinem Account ist keine E-Mail Adresse hinterlegt.",
+      text: "Du kannst dein Passwort nicht selbstständig zurücksetzen.",
+      showWarningSign: true
+    },
+    ERR_SMTP_CONNECTION_REFUSED: {
+      title: "Es konnte keine Bestätigungs-E-Mail versendet werden.",
+      text: "Dein Passwort wurde nicht zurückgesetzt. (SMTP: Connection refused)",
+      showWarningSign: false
+    },
+    ERR_SMTP_CREDENTIALS_ERROR: {
+      title: "Es konnte keine Bestätigungs-E-Mail versendet werden.",
+      text: "Dein Passwort wurde nicht zurückgesetzt. (SMTP: Credential error)",
+      showWarningSign: false
+    },
+    ERR_OTHER_SMTP_ERROR: {
+      title: "Es konnte keine Bestätigungs-E-Mail versendet werden.",
+      text: "Dein Passwort wurde nicht zurückgesetzt.",
+      showWarningSign: false
+    },
+    ERR_SERVICE_DISABLED: {
+      title: "Diese Funktion steht in der aktuellen Konfiguration nicht zur Verfügung.",
+      text: "",
+      showWarningSign: false
+    },
   },
   fire: function(message) {
     if (message in this.codes) {
