@@ -26,7 +26,7 @@ def myData():
 
 @userApi.route("/api/user/email", methods=["POST"])
 @login_required
-def saveEmail(id):
+def saveEmail():
     dbconn = db.database()
     dbconn.execute("UPDATE people SET email = %s WHERE username = %s", (request.form.get("email"), current_user.username))
     if not dbconn.commit():
