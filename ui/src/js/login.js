@@ -15,9 +15,10 @@ import preloader from './preloader.js';
 // Module definition
 let login = {
   show: function() {
+    document.getElementById("app").classList.add("login-shown");
     Swal.fire({
       title: 'Bitte Nutzerdaten eingeben.',
-      html: '<input type="text" id="swal-input1" placeholder="Nutzername" class="swal2-input"/><input type="password" id="swal-input2" placeholder="Passwort" class="swal2-input"/><br /><a href="#" onclick="window.app.views.main.router.navigate(\'/mailreset\');" class="nodisplay" id="reset-link" tabindex="999999">Passwort vergessen</a>',
+      html: '<input type="text" id="swal-input1" placeholder="Nutzername" class="swal2-input"/><input type="password" id="swal-input2" placeholder="Passwort" class="swal2-input"/><br /><a href="#" onclick="document.getElementById(\'app\').classList.remove(\'login-shown\');window.app.views.main.router.navigate(\'/mailreset\');" class="nodisplay" id="reset-link" tabindex="999999">Passwort vergessen</a>',
       showCancelButton: false,
       confirmButtonText: 'Anmelden',
       showLoaderOnConfirm: true,
@@ -46,6 +47,7 @@ let login = {
     window.isLoggedIn = false;
     api.send("/api/login", "POST", {uname: document.getElementById("swal-input1").value, passwd: document.getElementById("swal-input2").value}).then(function(response) {
       window.isLoggedIn = true;
+      document.getElementById("app").classList.remove("login-shown");
       response = JSON.parse(response)
       window.currentUserPermissions = response.permissions;
       window.currentUserGroups = response.groups;

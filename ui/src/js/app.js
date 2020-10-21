@@ -10,6 +10,7 @@ import '../css/preloader.css';
 import '../css/responsivenav.css';
 import '../css/table.css';
 import '../css/progress.css';
+import '../css/hamburgers.min.css';
 
 // Import libraries
 import Swal from 'sweetalert2';
@@ -22,6 +23,9 @@ import api from './api.js';
 import login from './login.js';
 import menue from './menue.js';
 import timeout from './timeout.js';
+import mobilemenu from './mobile-menu.js';
+
+import './mobile-menu-scrolling.js';
 
 // Import main app component
 import App from '../app.f7.html';
@@ -52,6 +56,7 @@ let mainView = window.app.views.create(".view-main", {
   pushState: true,
   pushStateAnimate: false,
   pushStateSeparator: "#page",
+  removeElements: false
 })
 
 // Make the back button work
@@ -75,3 +80,5 @@ if (location.includes("mailreset")) {
 } else {
   login.show();
 }
+
+window.mobilemenu = mobilemenu;
