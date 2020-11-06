@@ -17,6 +17,7 @@ import modules.database as db
 import helpers.hash as hash
 import helpers.resetEmail as email
 import helpers.essentials as es
+import modules.permissionCheck as pc
 
 # Endpoint definition
 resetApi = Blueprint("resetApi", __name__)
@@ -30,16 +31,24 @@ def createResetSession():
     result = dbconn.fetchone()
     if not result["num"] == 1:
         return "ERR_USER_NOT_FOUND", 500
+    pCheck = pc.permissionCheck()
+    permissions = pCheck.get(request.form.get("username"))
+    if not "emailrst" in permissions:
+        return "ERR_NOT_ALLOWED", 500
     if not request.form.get("password1") == request.form.get("password2"):
         return "ERR_PASSWORDS_DIFFERENT", 500
     if result["email"] == "" or result["email"] == None:
         return "ERR_NO_EMAIL", 500
-    dbconn.execute("SELECT COUNT(*) AS num FROM mailreset WHERE people_id = %s", (result["id"],))
+    dbconn.execute("SELECT COUNT(*) AS num, time FROM mailreset WHERE people_id = %s", (result["id"],))
     oldTokens = dbconn.fetchone()
     if oldTokens["num"] > 0:
-        dbconn.execute("DELETE FROM mailreset WHERE people_id = %s", (result["id"],))
-        if not dbconn.commit():
-            return "ERR_DATABASE_ERROR", 500
+        earliestCreation = datetime.datetime.now() - datetime.timedelta(days=1)
+        if oldTokens["time"] >= earliestCreation:
+            return "ERR_OPEN_RESET_REQUEST", 500
+        else:
+            dbconn.execute("DELETE FROM mailreset WHERE people_id = %s", (result["id"],))
+            if not dbconn.commit():
+                return "ERR_DATABASE_ERROR", 500
     token = es.randomString(128)
     dbconn.execute("INSERT INTO mailreset (time, token, people_id, unix_hash, smb_hash) VALUES (NOW(), %s, %s, %s, %s)", (token, result["id"], hash.unix(request.form.get("password1")), hash.samba(request.form.get("password1"))))
     if not dbconn.commit():
