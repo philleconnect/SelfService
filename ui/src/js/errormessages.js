@@ -169,6 +169,16 @@ let errormsg = {
       text: "",
       showWarningSign: false
     },
+    ERR_OPEN_RESET_REQUEST: {
+      title: "Offene Reset-Anfrage ausstehend.",
+      text: "Bitte bestätige die offene Reset-E-Mail, oder warte, bis die Bestätigungsfrist abgelaufen ist, um eine neue Reset-E-Mail anzufordern.",
+      showWarningSign: false
+    },
+    ERR_NOT_ALLOWED: {
+      title: "Dein Account verfügt nicht über die notwendigen Berechtigungen.",
+      text: "",
+      showWarningSign: false
+    }
   },
   fire: function(message) {
     if (message in this.codes) {
