@@ -31,6 +31,11 @@ def saveEmail():
     dbconn.execute("UPDATE people SET email = %s WHERE username = %s", (request.form.get("email"), current_user.username))
     if not dbconn.commit():
         return "ERR_DATABASE_ERROR", 500
+    dbconn.execute("SELECT id FROM people WHERE username = %s", (current_user.username,))
+    result = dbconn.fetchone()
+    ldap = requests.post(url = "http://pc_admin/api/public/usercheck/" + result["id"])
+    if not ldap.text == "SUCCESS":
+        return "ERR_LDAP_ERROR", 500
     return "SUCCESS", 200
 
 @userApi.route("/api/user/password", methods=["POST"])
