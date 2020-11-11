@@ -34,6 +34,7 @@ selfservice = Flask(__name__)
 SESSION_TYPE = "filesystem"
 SESSION_COOKIE_NAME = "SC_SELFSERVICE_SESSION"
 SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
 PERMANENT_SESSION_LIFETIME = 1200
 selfservice.config.from_object(__name__)
 with open(config.CONFIG_SECRET_KEY, "r") as f:
