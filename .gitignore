@@ -282,3 +282,7 @@ dmypy.json
 
 # pytype static type analyzer
 .pytype/
+
+
+# Keep webpack files
+!ui/build/
