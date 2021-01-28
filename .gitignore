@@ -286,3 +286,9 @@ dmypy.json
 
 # Keep webpack files
 !ui/build/
+
+# Do not upload release
+selfservice.tar.gz
+
+# Do not keep compiled frontend in git
+selfservice/ui
