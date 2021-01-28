@@ -3,7 +3,7 @@
         {
             "name":"selfservice",
             "hostname":"selfservice",
-            "url":"https://github.com/philleconnect/SelfService/releases/download/1.1.1/selfservice.tar.gz",
+            "url":"https://github.com/philleconnect/SelfService/releases/download/1.1.2/selfservice.tar.gz",
             "ports":[
                 {
                     "external":8001,
