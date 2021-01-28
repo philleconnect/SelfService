@@ -12,23 +12,23 @@ import passlib.hash
 
 # Include modules
 from modules.permissionCheck import permissionCheck
-import modules.database as db
+from modules.database import database
+from modules.groupMembership import groupMembership
 import helpers.hash as hash
-import modules.groupMembership as gm
 
 # Endpoint definition
 userApi = Blueprint("userApi", __name__)
 @userApi.route("/api/user/data", methods=["GET"])
 @login_required
 def myData():
-    dbconn = db.database()
+    dbconn = database()
     dbconn.execute("SELECT id, username, firstname, lastname, DATE_FORMAT(birthdate, '%d.%m.%Y') AS birthdate, email FROM people WHERE username = %s LIMIT 1", (current_user.username,))
     return jsonify(dbconn.fetchone()), 200
 
 @userApi.route("/api/user/email", methods=["POST"])
 @login_required
 def saveEmail():
-    dbconn = db.database()
+    dbconn = database()
     dbconn.execute("UPDATE people SET email = %s WHERE username = %s", (request.form.get("email"), current_user.username))
     if not dbconn.commit():
         return "ERR_DATABASE_ERROR", 500
@@ -42,7 +42,7 @@ def saveEmail():
 @userApi.route("/api/user/password", methods=["POST"])
 @login_required
 def updatePassword():
-    dbconn = db.database()
+    dbconn = database()
     dbconn.execute("SELECT id FROM people WHERE username = %s", (current_user.username,))
     result = dbconn.fetchone()
     if not request.form.get("password1") == request.form.get("password2"):
@@ -58,7 +58,7 @@ def updatePassword():
 @userApi.route("/api/user/resetlist", methods=["GET"])
 @login_required
 def listUsers():
-    dbconn = db.database()
+    dbconn = database()
     dbconn.execute("SELECT P.id, preferredname, username FROM people P INNER JOIN people_has_groups PHG ON PHG.people_id = P.id INNER JOIN groups G ON G.id = PHG.group_id INNER JOIN groups_has_permission GHP ON GHP.group_id = G.id INNER JOIN permission PM ON PM.id = GHP.permission_id WHERE PM.detail = 'pwalwrst' ORDER BY username")
     users = []
     for user in dbconn.fetchall():
@@ -68,10 +68,10 @@ def listUsers():
 @userApi.route("/api/user/resetpassword/<id>", methods=["POST"])
 @login_required
 def resetPassword(id):
-    gMember = gm.groupMembership()
+    gMember = groupMembership()
     if not gMember.checkGroupMembership(current_user.username, "teachers"):
         return "ERR_NOT_ALLOWED", 403
-    dbconn = db.database()
+    dbconn = database()
     pCheck = permissionCheck()
     permissions = pCheck.getForId(id)
     if not "pwalwrst" in permissions:

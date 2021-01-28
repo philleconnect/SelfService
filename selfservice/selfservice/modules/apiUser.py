@@ -8,13 +8,13 @@
 from flask_login import UserMixin
 
 # Include modules
-import modules.database as db
+from modules.database import database
 
 # Class definition
 class apiUser(UserMixin):
     def __init__(self, id):
         self.id = id
-        dbconn = db.database()
+        dbconn = database()
         dbconn.execute("SELECT username FROM people WHERE id = %s", (id,))
         result = dbconn.fetchone()
         self.username = result["username"]

@@ -13,11 +13,11 @@ import datetime
 import os
 
 # Include modules
-import modules.database as db
+from modules.database import database
+from modules.permissionCheck import permissionCheck
 import helpers.hash as hash
 import helpers.resetEmail as email
 import helpers.essentials as es
-import modules.permissionCheck as pc
 
 # Endpoint definition
 resetApi = Blueprint("resetApi", __name__)
@@ -26,12 +26,12 @@ def createResetSession():
     isResetEnabled = os.environ.get("EMAIL_RESET_ENABLED")
     if not isResetEnabled.lower() == "true":
         return "ERR_SERVICE_DISABLED", 500
-    dbconn = db.database()
+    dbconn = database()
     dbconn.execute("SELECT COUNT(*) AS num, id, email, firstname FROM people WHERE username = %s", (request.form.get("username"),))
     result = dbconn.fetchone()
     if not result["num"] == 1:
         return "ERR_USER_NOT_FOUND", 500
-    pCheck = pc.permissionCheck()
+    pCheck = permissionCheck()
     permissions = pCheck.get(request.form.get("username"))
     if not "emailrst" in permissions:
         return "ERR_NOT_ALLOWED", 500
@@ -64,7 +64,7 @@ def createResetSession():
 
 @resetApi.route("/api/reset/confirm/<token>", methods=["POST"])
 def confirmReset(token):
-    dbconn = db.database()
+    dbconn = database()
     dbconn.execute("SELECT COUNT(*) AS num, unix_hash, smb_hash, time, people_id AS id FROM mailreset WHERE token = %s", (token,))
     result = dbconn.fetchone()
     if not result["num"] == 1:

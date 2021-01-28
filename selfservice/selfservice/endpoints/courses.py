@@ -12,8 +12,8 @@ import datetime
 import base64
 
 # Include modules
-import modules.database as db
-import modules.permissionCheck as pc
+from modules.database import database
+from modules.permissionCheck import permissionCheck
 import helpers.courselist as cl
 
 # Endpoint definition
@@ -21,14 +21,14 @@ courseApi = Blueprint("courseApi", __name__)
 @courseApi.route("/api/course/my", methods=["GET"])
 @login_required
 def getMyCourses():
-    dbconn = db.database()
+    dbconn = database()
     dbconn.execute("SELECT G.id, name FROM groups G INNER JOIN people_has_groups PHG ON G.id = PHG.group_id INNER JOIN people P ON P.id = PHG.people_id WHERE P.username = %s AND G.type = 3", (current_user.username,))
     return jsonify(dbconn.fetchall()), 200
 
 @courseApi.route("/api/course/detail/<id>", methods=["GET"])
 @login_required
 def getCourseDetail(id):
-    pCheck = pc.permissionCheck()
+    pCheck = permissionCheck()
     if not "grouplst" in pCheck.get(current_user.username):
         return "ERR_NOT_ALLOWED", 403
     course = {"name": cl.getCourseName(id), "members": cl.getCourseDetails(id)}
@@ -37,8 +37,8 @@ def getCourseDetail(id):
 @courseApi.route("/api/course/csv/<id>", methods=["GET"])
 @login_required
 def getCourseCSV(id):
-    dbconn = db.database()
-    pCheck = pc.permissionCheck()
+    dbconn = database()
+    pCheck = permissionCheck()
     if not "grouplst" in pCheck.get(current_user.username):
         return "ERR_NOT_ALLOWED", 403
     csv = {"name": cl.getCourseName(id), "content": "data:text/csv;charset=utf-8,Vorname;Nachname;E-Mail;Geburtsdatum\n"}
@@ -50,8 +50,8 @@ def getCourseCSV(id):
 @courseApi.route("/api/course/pdf/<id>", methods=["GET"])
 @login_required
 def getCoursePDF(id):
-    dbconn = db.database()
-    pCheck = pc.permissionCheck()
+    dbconn = database()
+    pCheck = permissionCheck()
     if not "grouplst" in pCheck.get(current_user.username):
         return "ERR_NOT_ALLOWED", 403
     courseName = cl.getCourseName(id)

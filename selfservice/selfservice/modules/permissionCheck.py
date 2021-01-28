@@ -5,12 +5,12 @@
 # © 2020 Johannes Kreutz.
 
 # Include modules
-import modules.database as db
+from modules.database import database
 
 # Class definition
 class permissionCheck:
     def __init__(self):
-        self.__dbconn = db.database()
+        self.__dbconn = database()
 
     # Helper to get permissions of user
     def __getPermissionsOfUser(self, user):

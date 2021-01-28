@@ -16,7 +16,7 @@ from datetime import timedelta
 # Include Models
 import config
 import helpers.essentials as es
-import modules.apiUser as apiUser
+from modules.apiUser import apiUser
 
 # Run first setup
 if not os.path.exists(config.CONFIG_SECRET_KEY):
@@ -45,7 +45,7 @@ login_manager.needs_refresh_message = (u"Session timed out, please re-login")
 
 @login_manager.user_loader
 def load_user(user_id):
-    return apiUser.apiUser(user_id)
+    return apiUser(user_id)
 
 # Set session timeout to 20 minutes
 @selfservice.before_request
@@ -64,6 +64,6 @@ selfservice.register_blueprint(resetApi)
 def teapot():
     return "I'm a teapot", 418
 
-# Create server
+# Create server (only executed in debug mode, production via uwsgi)
 if __name__ == "__main__":
     selfservice.run(debug=True, port=8080, threaded=True)

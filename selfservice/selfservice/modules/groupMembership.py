@@ -5,12 +5,12 @@
 # © 2020 Johannes Kreutz.
 
 # Include modules
-import modules.database as db
+from modules.database import database
 
 # Class definition
 class groupMembership:
     def __init__(self):
-        self.__dbconn = db.database()
+        self.__dbconn = database()
 
     # Helper to get groups of user
     def getGroupsOfUser(self, user):

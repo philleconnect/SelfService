@@ -11,25 +11,25 @@ import passlib.hash
 import os
 
 # Include modules
-import modules.database as db
-import modules.apiUser as apiUser
-import modules.permissionCheck as pc
-import modules.groupMembership as gm
+from modules.database import database
+from modules.apiUser import apiUser
+from modules.permissionCheck import permissionCheck
+from modules.groupMembership import groupMembership
 
 # Endpoint definition
 loginApi = Blueprint("loginApi", __name__)
 @loginApi.route("/api/login", methods=["POST"])
 def createSession():
-    dbconn = db.database()
+    dbconn = database()
     dbconn.execute("SELECT unix_hash, P.id FROM userpassword UP INNER JOIN people P ON UP.people_id = P.id WHERE P.username = %s", (request.form.get("uname"),))
     results = dbconn.fetchall()
     if not len(results) == 1:
         return "ERR_USERNAME_NOT_UNIQUE", 403
     if passlib.hash.ldap_salted_sha1.verify(request.form.get("passwd"), results[0]["unix_hash"]):
-        user = apiUser.apiUser(results[0]["id"])
+        user = apiUser(results[0]["id"])
         login_user(user)
-        pCheck = pc.permissionCheck()
-        gMember = gm.groupMembership()
+        pCheck = permissionCheck()
+        gMember = groupMembership()
         return jsonify({"permissions":pCheck.get(current_user.username),"groups":gMember.getGroupsOfUser(current_user.username)}), 200
     else:
         return "ERR_ACCESS_DENIED", 401
@@ -42,7 +42,7 @@ def removeSession():
 @loginApi.route("/api/permissions/reset", methods=["GET"])
 @login_required
 def hasResetPermission():
-    pCheck = pc.permissionCheck()
+    pCheck = permissionCheck()
     permissions = pCheck.get(current_user.username)
     if "emailrst" in permissions:
         return "GRANTED", 200
@@ -60,7 +60,7 @@ def resetEnabled():
 @loginApi.route("/api/permissions/isteacher", methods=["GET"])
 @login_required
 def isTeacher():
-    gMember = gm.groupMembership()
+    gMember = groupMembership()
     if gMember.checkGroupMembership(current_user.username, "teachers"):
         return "GRANTED", 200
     else:
@@ -69,7 +69,7 @@ def isTeacher():
 @loginApi.route("/api/permissions/teacherreset/<id>", methods=["GET"])
 @login_required
 def canBeTeacherResetted(id):
-    pCheck = pc.permissionCheck()
+    pCheck = permissionCheck()
     permissions = pCheck.get(current_user.username)
     if "pwalwrst" in permissions:
         return "GRANTED", 200
@@ -79,7 +79,7 @@ def canBeTeacherResetted(id):
 @loginApi.route("/api/permissions/courselist", methods=["GET"])
 @login_required
 def hasCourselistPermission():
-    pCheck = pc.permissionCheck()
+    pCheck = permissionCheck()
     permissions = pCheck.get(current_user.username)
     if "grouplst" in permissions:
         return "GRANTED", 200

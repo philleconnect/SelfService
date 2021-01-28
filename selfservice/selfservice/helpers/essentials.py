@@ -10,7 +10,7 @@ import random
 from flask_login import current_user
 
 # Include modules
-import modules.permissionCheck as pCheck
+from modules.permissionCheck import permissionCheck
 
 # Essential functions
 def randomString(length = 10):
@@ -18,5 +18,5 @@ def randomString(length = 10):
     return ''.join(random.choice(letters) for i in range(length))
 
 def isAuthorized(permissions):
-    permissionCheck = pCheck.permissionCheck()
+    permissionCheck = permissionCheck()
     return permissionCheck.check(current_user.username, permissions)
