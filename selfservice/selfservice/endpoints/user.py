@@ -11,6 +11,7 @@ import requests
 import passlib.hash
 
 # Include modules
+from modules.permissionCheck import permissionCheck
 import modules.database as db
 import helpers.hash as hash
 import modules.groupMembership as gm
@@ -71,6 +72,10 @@ def resetPassword(id):
     if not gMember.checkGroupMembership(current_user.username, "teachers"):
         return "ERR_NOT_ALLOWED", 403
     dbconn = db.database()
+    pCheck = permissionCheck()
+    permissions = pCheck.getForId(id)
+    if not "pwalwrst" in permissions:
+        return "ERR_NOT_ALLOWED", 403
     dbconn.execute("SELECT id FROM people WHERE username = %s", (current_user.username,))
     teacherResult = dbconn.fetchone()
     dbconn.execute("SELECT unix_hash FROM userpassword WHERE people_id = %s", (teacherResult["id"],))
