@@ -10,7 +10,7 @@ npm run build-prod
 popd
 
 # Clear ui folder and copy compiled code over
-rm -r selfservice/ui/*
+rm -rf selfservice/ui/*
 cp -r ui/www/* selfservice/ui/
 
 # Create archive
