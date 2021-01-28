@@ -55,11 +55,11 @@ def updatePassword():
         return "ERR_LDAP_ERROR", 500
     return "SUCCESS", 200
 
-@userApi.route("/api/user/list", methods=["GET"])
+@userApi.route("/api/user/resetlist", methods=["GET"])
 @login_required
 def listUsers():
     dbconn = db.database()
-    dbconn.execute("SELECT id, preferredname, username FROM people ORDER BY username")
+    dbconn.execute("SELECT P.id, preferredname, username FROM people P INNER JOIN people_has_groups PHG ON PHG.people_id = P.id INNER JOIN groups G ON G.id = PHG.group_id INNER JOIN groups_has_permission GHP ON GHP.group_id = G.id INNER JOIN permission PM ON PM.id = GHP.permission_id WHERE PM.detail = 'pwalwrst' ORDER BY username")
     users = []
     for user in dbconn.fetchall():
         users.append({"id":user["id"],"name":user["preferredname"] + " (" + user["username"] + ")"})

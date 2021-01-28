@@ -96,7 +96,7 @@ export default {
     load: function() {
       preloader.toggle("LADEN");
       progress.setup();
-      api.send("/api/user/list", "GET", {}).then(function(response) {
+      api.send("/api/user/resetlist", "GET", {}).then(function(response) {
         response = JSON.parse(response);
         preloader.hide();
         users = response;
