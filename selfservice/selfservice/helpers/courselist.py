@@ -2,7 +2,7 @@
 
 # SchoolConnect SelfService API
 # Course list functions
-# © 2020 Johannes Kreutz.
+# © 2020 - 2021 Johannes Kreutz.
 
 # Include modules
 from modules.database import database

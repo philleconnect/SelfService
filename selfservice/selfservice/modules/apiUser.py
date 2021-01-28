@@ -2,7 +2,7 @@
 
 # SchoolConnect SelfService API
 # API User class
-# © 2020 Johannes Kreutz.
+# © 2020 - 2021 Johannes Kreutz.
 
 # Include dependencies
 from flask_login import UserMixin

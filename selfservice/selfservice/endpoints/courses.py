@@ -2,7 +2,7 @@
 
 # SchoolConnect SelfService API
 # Course API endpoint
-# © 2020 Johannes Kreutz.
+# © 2020 - 2021 Johannes Kreutz.
 
 # Include dependencies
 from flask import Blueprint, request, jsonify

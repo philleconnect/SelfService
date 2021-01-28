@@ -2,7 +2,7 @@
 
 # SchoolConnect SelfService API
 # Hash functions
-# © 2020 Johannes Kreutz.
+# © 2020 - 2021 Johannes Kreutz.
 
 # Include dependencies
 import hashlib
