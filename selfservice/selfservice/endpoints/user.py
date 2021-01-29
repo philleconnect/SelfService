@@ -58,6 +58,9 @@ def updatePassword():
 @userApi.route("/api/user/resetlist", methods=["GET"])
 @login_required
 def listUsers():
+    gMember = groupMembership()
+    if not gMember.checkGroupMembership(current_user.username, "teachers"):
+        return "ERR_NOT_ALLOWED", 403
     dbconn = database()
     dbconn.execute("SELECT P.id, preferredname, username FROM people P INNER JOIN people_has_groups PHG ON PHG.people_id = P.id INNER JOIN groups G ON G.id = PHG.group_id INNER JOIN groups_has_permission GHP ON GHP.group_id = G.id INNER JOIN permission PM ON PM.id = GHP.permission_id WHERE PM.detail = 'pwalwrst' ORDER BY username")
     users = []
