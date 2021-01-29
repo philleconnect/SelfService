@@ -16,6 +16,7 @@ from modules.database import database
 from modules.apiUser import apiUser
 from modules.permissionCheck import permissionCheck
 from modules.groupMembership import groupMembership
+from modules.bruteforceProtection import bruteforceProtection
 
 
 # Endpoint definition
@@ -24,6 +25,13 @@ loginApi = Blueprint("loginApi", __name__)
 
 @loginApi.route("/api/login", methods=["POST"])
 def createSession():
+    bf = bruteforceProtection()
+    timeout = bf.isBlocked(request.form.get("uname"))
+    if timeout > 0:
+        return jsonify({
+            "status": "ERR_TOO_MANY_FAILED_ATTEMPTS",
+            "timeout": timeout
+        }), 200
     dbconn = database()
     dbconn.execute("SELECT unix_hash, P.id FROM userpassword UP INNER JOIN people P ON UP.people_id = P.id WHERE P.username = %s", (request.form.get("uname"),))
     results = dbconn.fetchall()
@@ -34,12 +42,18 @@ def createSession():
         login_user(user)
         pCheck = permissionCheck()
         gMember = groupMembership()
+        bf.successfulLogin(request.form.get("uname"))
         return jsonify({
+            "status": "SUCCESS",
             "permissions": pCheck.get(current_user.username),
             "groups": gMember.getGroupsOfUser(current_user.username)
         }), 200
     else:
-        return "ERR_ACCESS_DENIED", 401
+        timeout = bf.failedLogin(request.form.get("uname"))
+        return jsonify({
+            "status": "ERR_ACCESS_DENIED",
+            "timeout": timeout
+        }), 401
 
 
 @loginApi.route("/api/logout", methods=["POST"])
