@@ -56,7 +56,7 @@ limiter = Limiter(
     default_limits=["500 per day", "100 per hour"],
     storage_uri="redis://selfservice-redis"
 )
-limiter.limit("1/5seconds")(loginApi)
+limiter.limit("10/5seconds")(loginApi)
 
 
 @login_manager.user_loader
