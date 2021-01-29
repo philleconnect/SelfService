@@ -4,14 +4,18 @@
 # API server configuration
 # © 2020 - 2021 Johannes Kreutz.
 
+
 # Include dependencies
 import os
+
 
 # Base config file path
 CONFIG_BASE = "/etc/selfservice"
 
+
 # Path to configuration file
 CONFIG_APIKEY_PATH = CONFIG_BASE + "/apikey.txt"
+
 
 # Secret key
 CONFIG_SECRET_KEY = CONFIG_BASE + "/SecretKey.txt"

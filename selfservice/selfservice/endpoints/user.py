@@ -4,11 +4,13 @@
 # User API endpoint
 # © 2020 - 2021 Johannes Kreutz.
 
+
 # Include dependencies
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 import requests
 import passlib.hash
+
 
 # Include modules
 from modules.permissionCheck import permissionCheck
@@ -16,14 +18,18 @@ from modules.database import database
 from modules.groupMembership import groupMembership
 import helpers.hash as hash
 
+
 # Endpoint definition
 userApi = Blueprint("userApi", __name__)
+
+
 @userApi.route("/api/user/data", methods=["GET"])
 @login_required
 def myData():
     dbconn = database()
     dbconn.execute("SELECT id, username, firstname, lastname, DATE_FORMAT(birthdate, '%d.%m.%Y') AS birthdate, email FROM people WHERE username = %s LIMIT 1", (current_user.username,))
     return jsonify(dbconn.fetchone()), 200
+
 
 @userApi.route("/api/user/email", methods=["POST"])
 @login_required
@@ -34,10 +40,11 @@ def saveEmail():
         return "ERR_DATABASE_ERROR", 500
     dbconn.execute("SELECT id FROM people WHERE username = %s", (current_user.username,))
     result = dbconn.fetchone()
-    ldap = requests.post(url = "http://pc_admin/api/public/usercheck/" + result["id"])
+    ldap = requests.post(url="http://pc_admin/api/public/usercheck/" + result["id"])
     if not ldap.text == "SUCCESS":
         return "ERR_LDAP_ERROR", 500
     return "SUCCESS", 200
+
 
 @userApi.route("/api/user/password", methods=["POST"])
 @login_required
@@ -55,6 +62,7 @@ def updatePassword():
         return "ERR_LDAP_ERROR", 500
     return "SUCCESS", 200
 
+
 @userApi.route("/api/user/resetlist", methods=["GET"])
 @login_required
 def listUsers():
@@ -68,6 +76,7 @@ def listUsers():
         users.append({"id":user["id"],"name":user["preferredname"] + " (" + user["username"] + ")"})
     return jsonify(users), 200
 
+
 @userApi.route("/api/user/resetpassword/<id>", methods=["POST"])
 @login_required
 def resetPassword(id):
@@ -77,7 +86,7 @@ def resetPassword(id):
     dbconn = database()
     pCheck = permissionCheck()
     permissions = pCheck.getForId(id)
-    if not "pwalwrst" in permissions:
+    if "pwalwrst" not in permissions:
         return "ERR_NOT_ALLOWED", 403
     dbconn.execute("SELECT id FROM people WHERE username = %s", (current_user.username,))
     teacherResult = dbconn.fetchone()
@@ -90,7 +99,7 @@ def resetPassword(id):
     dbconn.execute("UPDATE userpassword SET unix_hash = %s, smb_hash = %s, hint = %s, autogen = 0, cleartext = NULL WHERE people_id = %s", (hash.unix(request.form.get("password1")), hash.samba(request.form.get("password1")), request.form.get("hint"), id))
     if not dbconn.commit():
         return "ERR_DATABASE_ERROR", 500
-    ldap = requests.post(url = "http://pc_admin/api/public/usercheck/" + id)
+    ldap = requests.post(url="http://pc_admin/api/public/usercheck/" + id)
     if not ldap.text == "SUCCESS":
         return "ERR_LDAP_ERROR", 500
     return "SUCCESS", 200

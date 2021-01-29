@@ -4,11 +4,14 @@
 # API User class
 # © 2020 - 2021 Johannes Kreutz.
 
+
 # Include dependencies
 from flask_login import UserMixin
 
+
 # Include modules
 from modules.database import database
+
 
 # Class definition
 class apiUser(UserMixin):

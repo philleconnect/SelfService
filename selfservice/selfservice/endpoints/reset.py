@@ -4,6 +4,7 @@
 # Password email reset API endpoint
 # © 2020 - 2021 Johannes Kreutz.
 
+
 # Include dependencies
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
@@ -12,6 +13,7 @@ import passlib.hash
 import datetime
 import os
 
+
 # Include modules
 from modules.database import database
 from modules.permissionCheck import permissionCheck
@@ -19,8 +21,11 @@ import helpers.hash as hash
 import helpers.resetEmail as email
 import helpers.essentials as es
 
+
 # Endpoint definition
 resetApi = Blueprint("resetApi", __name__)
+
+
 @resetApi.route("/api/reset/start", methods=["PUT"])
 def createResetSession():
     isResetEnabled = os.environ.get("EMAIL_RESET_ENABLED")
@@ -33,11 +38,11 @@ def createResetSession():
         return "ERR_USER_NOT_FOUND", 500
     pCheck = permissionCheck()
     permissions = pCheck.get(request.form.get("username"))
-    if not "emailrst" in permissions:
+    if "emailrst" not in permissions:
         return "ERR_NOT_ALLOWED", 500
     if not request.form.get("password1") == request.form.get("password2"):
         return "ERR_PASSWORDS_DIFFERENT", 500
-    if result["email"] == "" or result["email"] == None:
+    if result["email"] == "" or result["email"] is None:
         return "ERR_NO_EMAIL", 500
     dbconn.execute("SELECT COUNT(*) AS num, time FROM mailreset WHERE people_id = %s", (result["id"],))
     oldTokens = dbconn.fetchone()
@@ -62,6 +67,7 @@ def createResetSession():
         return "ERR_OTHER_SMTP_ERROR", 500
     return "SUCCESS", 200
 
+
 @resetApi.route("/api/reset/confirm/<token>", methods=["POST"])
 def confirmReset(token):
     dbconn = database()
@@ -76,7 +82,7 @@ def confirmReset(token):
     dbconn.execute("DELETE FROM mailreset WHERE token = %s", (token,))
     if not dbconn.commit():
         return "ERR_DATABASE_ERROR", 500
-    ldap = requests.post(url = "http://pc_admin/api/public/usercheck/" + result["id"])
+    ldap = requests.post(url="http://pc_admin/api/public/usercheck/" + result["id"])
     if not ldap.text == "SUCCESS":
         return "ERR_LDAP_ERROR", 500
     return "SUCCESS", 200

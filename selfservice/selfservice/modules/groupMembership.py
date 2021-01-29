@@ -4,8 +4,10 @@
 # Group membership checker
 # © 2020 - 2021 Johannes Kreutz.
 
+
 # Include modules
 from modules.database import database
+
 
 # Class definition
 class groupMembership:

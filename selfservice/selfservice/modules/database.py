@@ -4,25 +4,27 @@
 # Database wrapper
 # © 2020 - 2021 Johannes Kreutz.
 
+
 # Include dependencies
 import os
 import mysql.connector
+
 
 # Class definition
 class database:
     def __init__(self):
         self.__db = mysql.connector.connect(
-            host = "main_db",
-            user = os.environ.get("MYSQL_USER"),
-            passwd = os.environ.get("MYSQL_PASSWORD"),
-            database = "schoolconnect"
+            host="main_db",
+            user=os.environ.get("MYSQL_USER"),
+            passwd=os.environ.get("MYSQL_PASSWORD"),
+            database="schoolconnect"
         )
         self.__cursor = self.__db.cursor(dictionary=True)
 
     # Execute SQL command
-    def execute(self, sql, values = None):
+    def execute(self, sql, values=None):
         try:
-            if values == None:
+            if values is None:
                 self.__cursor.execute(sql)
             elif isinstance(values, list):
                 self.__cursor.executemany(sql, values)

@@ -4,6 +4,7 @@
 # Course API endpoint
 # © 2020 - 2021 Johannes Kreutz.
 
+
 # Include dependencies
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
@@ -11,13 +12,17 @@ import pdfkit
 import datetime
 import base64
 
+
 # Include modules
 from modules.database import database
 from modules.permissionCheck import permissionCheck
 import helpers.courselist as cl
 
+
 # Endpoint definition
 courseApi = Blueprint("courseApi", __name__)
+
+
 @courseApi.route("/api/course/my", methods=["GET"])
 @login_required
 def getMyCourses():
@@ -25,34 +30,40 @@ def getMyCourses():
     dbconn.execute("SELECT G.id, name FROM groups G INNER JOIN people_has_groups PHG ON G.id = PHG.group_id INNER JOIN people P ON P.id = PHG.people_id WHERE P.username = %s AND G.type = 3", (current_user.username,))
     return jsonify(dbconn.fetchall()), 200
 
+
 @courseApi.route("/api/course/detail/<id>", methods=["GET"])
 @login_required
 def getCourseDetail(id):
     pCheck = permissionCheck()
-    if not "grouplst" in pCheck.get(current_user.username):
+    if "grouplst" not in pCheck.get(current_user.username):
         return "ERR_NOT_ALLOWED", 403
     course = {"name": cl.getCourseName(id), "members": cl.getCourseDetails(id)}
     return jsonify(course), 200
+
 
 @courseApi.route("/api/course/csv/<id>", methods=["GET"])
 @login_required
 def getCourseCSV(id):
     dbconn = database()
     pCheck = permissionCheck()
-    if not "grouplst" in pCheck.get(current_user.username):
+    if "grouplst" not in pCheck.get(current_user.username):
         return "ERR_NOT_ALLOWED", 403
-    csv = {"name": cl.getCourseName(id), "content": "data:text/csv;charset=utf-8,Vorname;Nachname;E-Mail;Geburtsdatum\n"}
+    csv = {
+        "name": cl.getCourseName(id),
+        "content": "data:text/csv;charset=utf-8,Vorname;Nachname;E-Mail;Geburtsdatum\n"
+    }
     for member in cl.getCourseDetails(id, True):
         row = member["firstname"] + ";" + member["lastname"] + ";" + member["email"] + ";" + member["birthdate"] + "\n"
         csv["content"] += row
     return jsonify(csv), 200
+
 
 @courseApi.route("/api/course/pdf/<id>", methods=["GET"])
 @login_required
 def getCoursePDF(id):
     dbconn = database()
     pCheck = permissionCheck()
-    if not "grouplst" in pCheck.get(current_user.username):
+    if "grouplst" not in pCheck.get(current_user.username):
         return "ERR_NOT_ALLOWED", 403
     courseName = cl.getCourseName(id)
     pdf = {"name": courseName, "content": "data:application/pdf;base64,"}

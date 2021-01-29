@@ -4,15 +4,17 @@
 # Password reset E-Mail sending functions
 # © 2020 - 2021 Johannes Kreutz.
 
+
 # Include dependencies
 import smtplib
 import ssl
 import os
 from socket import gaierror
 
+
 # Send mail
 def sendResetEmail(receiver, token, firstname):
-    sender = os.environ.get("SMTP_SENDER") if not os.environ.get("SMTP_SENDER") == None else "noreply@philleconnect"
+    sender = os.environ.get("SMTP_SENDER") if os.environ.get("SMTP_SENDER") is not None else "noreply@philleconnect"
     domain = os.environ.get("EXTERNAL_DOMAIN")
     content = f"""\
 Subject: PhilleConnect Passwort zurücksetzen: Bitte bestätigen.
@@ -38,5 +40,5 @@ Der Link ist 24 Stunden gültig, danach musst du einen neuen Link anfordern. Die
         return -2
     except smtplib.SMTPException as e:
         return -3
-    except:
+    except e:
         return -4
