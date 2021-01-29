@@ -8,7 +8,7 @@ ENV VERSION "1"
 
 USER root
 
-RUN apt-get update && apt-get install -y --no-install-recommends nginx openssl openssh-client sudo mariadb-client ca-certificates python3 python3-flask python3-requests python3-passlib python3-bcrypt python3-pip python3-setuptools python3-flask-login uwsgi uwsgi-plugin-python3 wkhtmltopdf python3-pdfkit
+RUN apt-get update && apt-get install -y --no-install-recommends nginx openssl openssh-client sudo mariadb-client ca-certificates python3 python3-flask python3-requests python3-passlib python3-bcrypt python3-pip python3-setuptools python3-flask-login uwsgi uwsgi-plugin-python3 wkhtmltopdf python3-pdfkit python3-redis
 RUN pip3 install Flask-Session mysql-connector Flask-Limiter
 RUN apt-get purge -y python3-pip python3-setuptools
 RUN apt-get autoremove -y

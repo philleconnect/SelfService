@@ -53,9 +53,10 @@ login_manager.needs_refresh_message = (u"Session timed out, please re-login")
 limiter = Limiter(
     selfservice,
     key_func=get_remote_address,
-    default_limits=["500 per day", "100 per hour"]
+    default_limits=["500 per day", "100 per hour"],
+    storage_uri="redis://selfservice-redis"
 )
-limiter.limit("1/second")(loginApi)
+limiter.limit("1/5seconds")(loginApi)
 
 
 @login_manager.user_loader

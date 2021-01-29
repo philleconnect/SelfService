@@ -1,6 +1,22 @@
 {
     "containers":[
         {
+            "name":"selfservice-redis",
+            "hostname":"selfservice-redis",
+            "prebuilt":{
+                "name":"redis",
+                "version":"latest"
+            },
+            "ports":[],
+            "networks":[
+                {
+                    "name":"selfservice-redis-net"
+                }
+            ],
+            "volumes":[],
+            "environment":[]
+        },
+        {
             "name":"selfservice",
             "hostname":"selfservice",
             "url":"https://github.com/philleconnect/SelfService/releases/download/1.1.2/selfservice.tar.gz",
@@ -20,6 +36,9 @@
                 },
                 {
                     "name":"mysql-net"
+                },
+                {
+                    "name":"selfservice-redis-net"
                 }
             ],
             "volumes":[],
@@ -38,7 +57,12 @@
         }
     ],
     "volumes":[],
-    "networks":[],
+    "networks":[
+        {
+            "name":"selfservice-redis-net",
+            "internal":true
+        }
+    ],
     "environment":[
         {
             "name":"SMTP_SERVER",
