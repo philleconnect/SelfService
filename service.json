@@ -41,7 +41,12 @@
                     "name":"selfservice-redis-net"
                 }
             ],
-            "volumes":[],
+            "volumes":[
+                {
+                    "name":"selfservice-redis-data",
+                    "mountpoint":"/data"
+                }
+            ],
             "environment":[
                 "MYSQL_PASSWORD",
                 "MYSQL_USER",
@@ -56,7 +61,11 @@
             ]
         }
     ],
-    "volumes":[],
+    "volumes":[
+        {
+            "name":"selfservice-redis-data"
+        }
+    ],
     "networks":[
         {
             "name":"selfservice-redis-net",
