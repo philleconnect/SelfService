@@ -1,7 +1,7 @@
 <template>
   <div class="page" data-name="Meine Kurse">
     <p class="headline"><b>KURS</b>LISTE</p>
-    <h3>Kurs: <span id="name"></span></h3>
+    <h3>Kurs: ${name}</h3>
     <div class="datagrid">
       <table id="course">
         <thead>
@@ -11,7 +11,20 @@
             <th>Geburtsdatum</th>
           </tr>
         </thead>
-        <tbody id="table-content"></tbody>
+        <tbody>
+          ${people && $h`
+            ${people.map((people) => $h`
+              <tr>
+                <td>${(people.name == "") ? "-" : people.name}</td>
+                <td>${(people.email == "") ? "-" : people.email}</td>
+                <td>${(people.birthdate == "") ? "-" : people.birthdate}</td>
+              </tr>
+            `)}
+          `}
+          ${!people && $h`
+            Keine Mitglieder vorhanden.
+          `}
+        </tbody>
       </table>
     </div>
   </div>
@@ -20,43 +33,36 @@
 import api from '../../js/api.js';
 import preloader from '../../js/preloader.js';
 import tableSearch from '../../js/tablesearch.js';
-let search = null;
-export default {
-  methods: {
-    // Data loading
-    load: function() {
-      preloader.toggle("LADEN");
-      api.send("/api/course/detail/" + this.$route.params.id, "GET", {}).then(function(response) {
-        response = JSON.parse(response);
-        preloader.hide();
-        document.getElementById("name").innerHTML = response.name;
-        let rows = "";
-        let style = false;
-        for (const member of response.members) {
-          rows += style ? "<tr class=\"alt\">" : "<tr>";
-          style = !style;
-          let name = (member.name == "") ? "-" : member.name;
-          let email = (member.email == "") ? "-" : member.email;
-          let birthdate = (member.birthdate == "") ? "-" : member.birthdate;
-          rows += "<td>" + name + "</td><td>" + email + "</td><td>" + birthdate + "</td></tr>";
-        }
-        document.getElementById("table-content").innerHTML = (rows != "") ? rows : "Keine Mitglieder vorhanden.";
-        this.loadSearch();
-      }.bind(this));
-    },
+export default (props, {$f7, $on, $update}) => {
+  let search = null;
+  let name = "";
+  let people = null;
 
-    // Data search
-    loadSearch: function() {
-      if (search != null) {
-        search.disable();
-      }
-      search = new tableSearch("course", {});
-    },
-  },
-  on: {
-    pageInit: function() {
-      this.load();
-    }
+  // Data loading
+  const load = () => {
+    preloader.toggle("LADEN");
+    api.send("/api/course/detail/" + props.id, "GET", {}).then((response) => {
+      response = JSON.parse(response);
+      name = response.name;
+      people = response.members.length == 0 ? null : response.members;
+      preloader.hide();
+      $update();
+      loadSearch();
+    });
   }
+
+  // Data search
+  const loadSearch = () => {
+    if (search != null) {
+      search.disable();
+    }
+    search = new tableSearch("course", {});
+  }
+
+  $on("pageInit", () => {
+    load();
+  })
+
+  return $render;
 };
 </script>

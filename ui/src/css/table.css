@@ -37,7 +37,7 @@
     font-size: 12px;
     font-weight: normal;
 }
-.datagrid table tbody .alt td {
+.datagrid table tbody tr:nth-child(even) td {
     background: #E1EEF4;
     color: #1155B9;
 }

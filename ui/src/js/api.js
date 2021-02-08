@@ -1,6 +1,6 @@
 /*
  API-Request-Engine
- © 2019 - 2020 Johannes Kreutz
+ © 2019 - 2021 Johannes Kreutz
  */
 
 // Import libraries
@@ -10,10 +10,12 @@ import Swal from 'sweetalert2';
 import login from './login.js';
 import errormsg from './errormessages.js';
 import preloader from './preloader.js';
+import my from './my.js';
 
 // Module definition
 let api = {
   send: function(url, type, data, disableErrorMessages) {
+    url = "https://172.16.0.27:450" + url
     return new Promise(function(resolve, reject) {
       let request = new XMLHttpRequest;
       request.addEventListener("load", function(event) {
@@ -21,14 +23,15 @@ let api = {
           resolve(event.target);
         } else {
           if (event.target.status == 401) {
-            if (window.isLoggedIn) {
-              login.show();
+            if (my.isLoggedIn || my.app.views.main.router.url != "/") {
+              window.location.href = "/";
             } else {
               Swal.showValidationMessage('Anmeldedaten falsch.');
               Swal.hideLoading();
+              resolve(event.target.responseText);
             }
           } else if (event.target.status == 403) {
-            if (window.isLoggedIn) {
+            if (my.isLoggedIn) {
               Swal.fire({
                 title: "Zugriffsfehler",
                 text: "Der Account verfügt nicht über die nötigen Berechtigungen für diesen Bereich.",
@@ -36,6 +39,17 @@ let api = {
               })
             } else {
               Swal.showValidationMessage('Anmeldedaten falsch.');
+              Swal.hideLoading();
+            }
+          } else if (event.target.status == 429) {
+            if (my.isLoggedIn) {
+              Swal.fire({
+                title: "Zu viele Anfragen",
+                text: "Bitte warte einen Moment unt versuche es erneut.",
+                icon: "warning"
+              })
+            } else {
+              Swal.showValidationMessage('Zu viele Anmeldeversuche.');
               Swal.hideLoading();
             }
           } else if (event.target.status == 502) {

@@ -1,6 +1,6 @@
 /*
  Table search module for PhilleConnect Admin Backend
- © 2019 Johannes Kreutz.
+ © 2019 - 2021 Johannes Kreutz.
  */
 import TableFilter from 'tablefilter';
 

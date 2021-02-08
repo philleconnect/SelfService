@@ -1,11 +1,11 @@
 const webpack = require('webpack');
-const CopyPlugin = require('copy-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
 
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 const path = require('path');
 
@@ -20,6 +20,7 @@ const target = process.env.TARGET || 'web';
 
 module.exports = {
   mode: env,
+  target: env === "development" ? "web" : "browserslist",
   entry: {
     app: './src/js/app.js',
   },
@@ -34,7 +35,6 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.json'],
     alias: {
-
       '@': resolvePath('src'),
     },
 
@@ -47,41 +47,31 @@ module.exports = {
     contentBase: '/www/',
     disableHostCheck: true,
     historyApiFallback: true,
-    watchOptions: {
-      poll: 1000,
-    },
   },
   optimization: {
-    minimizer: [new TerserPlugin({
-      sourceMap: true,
-    })],
+    concatenateModules: true,
+    minimizer: [new TerserPlugin()],
   },
   module: {
     rules: [
       {
         test: /\.(mjs|js|jsx)$/,
-        use: 'babel-loader',
         include: [
           resolvePath('src'),
-          resolvePath('node_modules/framework7'),
 
-
-
-          resolvePath('node_modules/template7'),
-          resolvePath('node_modules/dom7'),
-          resolvePath('node_modules/ssr-window'),
         ],
+        use: [
+          {
+            loader: require.resolve('babel-loader'),
+
+          },
+        ]
       },
       {
-        test: /\.f7.html$/,
+        test: /\.f7.(html|js)$/,
         use: [
           'babel-loader',
-          {
-            loader: 'framework7-component-loader',
-            options: {
-              helpersPath: './src/template7-helpers-list.js',
-            },
-          },
+          'framework7-loader',
         ],
       },
 
@@ -149,6 +139,7 @@ module.exports = {
           name: 'images/[name].[ext]',
 
         },
+        type: 'javascript/auto'
       },
       {
         test: /\.(mp4|webm|ogg|mp3|wav|flac|aac|m4a)(\?.*)?$/,
@@ -158,6 +149,7 @@ module.exports = {
           name: 'media/[name].[ext]',
 
         },
+        type: 'javascript/auto'
       },
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
@@ -167,6 +159,7 @@ module.exports = {
           name: 'fonts/[name].[ext]',
 
         },
+        type: 'javascript/auto'
       },
     ],
   },
@@ -177,17 +170,11 @@ module.exports = {
     }),
 
     ...(env === 'production' ? [
-      new OptimizeCSSPlugin({
-        cssProcessorOptions: {
-          safe: true,
-          map: { inline: false },
-        },
-      }),
-      new webpack.optimize.ModuleConcatenationPlugin(),
+      new CssMinimizerPlugin(),
     ] : [
       // Development only plugins
       new webpack.HotModuleReplacementPlugin(),
-      new webpack.NamedModulesPlugin(),
+
     ]),
     new HtmlWebpackPlugin({
       filename: './index.html',
@@ -205,10 +192,17 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'css/[name].css',
     }),
-    new CopyPlugin({
+    new CopyWebpackPlugin({
       patterns: [
-        { from: resolvePath('src/static'), to: resolvePath('www/static') },
+        {
+          noErrorOnMissing: true,
+          from: resolvePath('src/static'),
+          to: resolvePath('www/static'),
+        },
+
       ],
     }),
+
+
   ],
 };

@@ -1,6 +1,6 @@
 /*
  * Progress JS by Johannes Kreutz for PhilleConnect Backend
- * © 2019 Johannes Kreutz.
+ * © 2019 - 2021 Johannes Kreutz.
  */
 let progress = {
     steps: [],

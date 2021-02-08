@@ -5,40 +5,40 @@
 <script>
 import api from '../../js/api.js';
 import Swal from 'sweetalert2';
-export default {
-  methods: {
-    showMessage: function() {
-      Swal.fire({
-        title: "Bestätigen...",
-        showCancelButton: false,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        willOpen: function() {
-          Swal.showLoading()
-          api.send("/api/reset/confirm/" + this.$route.params.token, "POST", {}).then(function(response) {
-            if (response == "ERR_TIMEOUT") {
-              Swal.fire({
-                title: "Link abgelaufen",
-                text: "Du musst dein Passwort erneut zurücksetzen. Beachte, dass der Bestätigungslink nur 24 Stunden gültig ist.",
-                icon: "error"
-              })
-            } else {
-              Swal.fire({
-                title: "Passwort erfolgreich zurückgesetzt.",
-                icon: "success"
-              }).then(function() {
-                window.location.href = "/";
-              })
-            }
-          }.bind(this));
-        }.bind(this)
-      });
-    }
-  },
-  on: {
-    pageInit: function() {
-      this.showMessage();
-    }
+export default (props, {$on, $f7route}) => {
+  const showMessage = () => {
+    Swal.fire({
+      title: "Bestätigen...",
+      showCancelButton: false,
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      willOpen: () => {
+        Swal.showLoading();
+        api.send("/api/reset/confirm/" + $f7route.params.token, "POST", {}).then((response) => {
+          if (response == "ERR_TIMEOUT") {
+            Swal.fire({
+              title: "Link abgelaufen",
+              text: "Du musst dein Passwort erneut zurücksetzen. Beachte, dass der Bestätigungslink nur 24 Stunden gültig ist.",
+              icon: "error"
+            })
+          } else {
+            Swal.fire({
+              title: "Passwort erfolgreich zurückgesetzt.",
+              icon: "success"
+            }).then(() => {
+              window.location.href = "/";
+            })
+          }
+        });
+      }
+    });
   }
+
+  $on("pageInit", () => {
+    showMessage();
+  })
+
+  return $render;
 };
 </script>

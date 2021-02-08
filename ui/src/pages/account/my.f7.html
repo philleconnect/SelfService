@@ -5,118 +5,131 @@
     <table>
       <tr>
         <td class="data-type">Benutzername:</td>
-        <td id="username"></td>
+        <td>${username}</td>
       </tr>
       <tr>
         <td class="data-type">Vorname:</td>
-        <td id="firstname"></td>
+        <td>${firstname}</td>
       </tr>
       <tr>
         <td class="data-type">Nachname:</td>
-        <td id="lastname"></td>
+        <td>${lastname}</td>
       </tr>
       <tr>
         <td class="data-type">Geburtsdatum:</td>
-        <td id="birthdate"></td>
+        <td>${birthdate}</td>
       </tr>
     </table>
     <br />
     <h3>Meine E-Mail Adresse:</h3>
-    <div class="input-group">
-      <input type="text" id="email" required @input="checkEmail()"/>
+    <form id="email" class="input-group">
+      <input type="text" value="${email}" name="email" required @input="${checkEmail}"/>
       <span class="input-bar"></span>
       <label>E-Mail</label>
-    </div>
-    <button @click="save()">Speichern</button>
-    <div id="email-valid" class="standalone-container nodisplay">
+    </form>
+    <button @click="${save}">Speichern</button>
+    <div class="standalone-container ${emailValid}">
       <i class="f7-icons standalone-icon" style="color: green;">checkmark_circle_fill</i><h4 class="standalone-icon-headline">E-Mail Adresse gültig.</h4>
     </div>
-    <div id="email-invalid" class="standalone-container nodisplay">
+    <div class="standalone-container ${emailInvalid}">
       <i class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i><h4 class="standalone-icon-headline">Dies ist keine gültige E-Mail Adresse.</h4>
     </div>
-    <p id="lost-password-hint" class="nodisplay">Hinweis: Du hast keine E-Mail Adresse hinterlegt. Es wird empfohlen, eine gültige E-Mail Adresse zu hinterlegen, damit du dein Passwort selbst zurücksetzen kannst, solltest du es vergessen.</p>
+    <p class="${lostPasswordHint}">Hinweis: Du hast keine E-Mail Adresse hinterlegt. Es wird empfohlen, eine gültige E-Mail Adresse zu hinterlegen, damit du dein Passwort selbst zurücksetzen kannst, solltest du es vergessen.</p>
   </div>
 </template>
 <script>
 import api from '../../js/api.js';
 import preloader from '../../js/preloader.js';
 import Swal from 'sweetalert2';
-let user = null;
-export default {
-  methods: {
-    // Data loading
-    load: function() {
-      preloader.toggle("LADEN");
-      api.send("/api/user/data", "GET", {}).then(function(response) {
-        response = JSON.parse(response);
-        user = response;
+export default (props, {$f7, $on, $update}) => {
+  // Data values
+  let username = "";
+  let firstname = "";
+  let lastname = "";
+  let birthdate = "";
+  let email = "";
+
+  // Elements
+  let lostPasswordHint = "nodisplay";
+  let emailValid = "nodisplay";
+  let emailInvalid = "nodisplay";
+
+  // Data loading
+  const load = () => {
+    preloader.toggle("LADEN");
+    api.send("/api/user/data", "GET", {}).then((response) => {
+      response = JSON.parse(response);
+      username = response.username;
+      firstname = (response.firstname == null) ? "-" : response.firstname;
+      lastname = (response.lastname == null) ? "-" : response.lastname;
+      birthdate = (response.birthdate == null) ? "-" : response.birthdate;
+      email = response.email;
+      api.send("/api/permissions/reset", "GET", {}).then((permission) => {
+        if (response.email == "" && permission == "GRANTED") {
+          lostPasswordHint = "nodisplay";
+        }
         preloader.hide();
-        document.getElementById("username").innerHTML = response.username;
-        document.getElementById("firstname").innerHTML = (response.firstname == null) ? "-" : response.firstname;
-        document.getElementById("lastname").innerHTML = (response.lastname == null) ? "-" : response.lastname;
-        document.getElementById("birthdate").innerHTML = (response.birthdate == null) ? "-" : response.birthdate;
-        document.getElementById("email").value = response.email;
-        api.send("/api/permissions/reset", "GET", {}).then(function(permission) {
-          if (response.email == "" && permission == "GRANTED") {
-            document.getElementById("lost-password-hint").classList.remove("nodisplay");
-          }
-        }.bind(this));
-      }.bind(this));
-    },
+        $update();
+      });
+    });
+  }
 
-    // Data store
-    save: function() {
-      if (this.validateEmail(document.getElementById("email").value)) {
-        Swal.fire({
-          title: "Neue E-Mail Adresse speichern?",
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonText: 'Speichern',
-          cancelButtonText: 'Abbrechen',
-          confirmButtonColor: '#1155BC',
-          preConfirm: function() {
-            return new Promise(function(resolve) {
-              api.send("/api/user/email", "POST", {email: document.getElementById("email").value}).then(function(response) {
-                Swal.fire({
-                  title: "E-Mail Adresse erfolgreich gespeichert.",
-                  icon: "success",
-                }).then(function() {
-                  this.load();
-                }.bind(this))
-              }.bind(this));
-            }.bind(this))
-          }.bind(this)
-        });
-      } else {
-        Swal.fire({
-          title: "E-Mail Adresse nicht gültig.",
-          text: "Bitte überprüfe deine Eingabe.",
-          icon: "warning"
-        });
-      }
-    },
-
-    // Data checking
-    checkEmail: function() {
-      if (this.validateEmail(document.getElementById("email").value)) {
-        document.getElementById("email-valid").classList.remove("nodisplay");
-        document.getElementById("email-invalid").classList.add("nodisplay");
-      } else {
-        document.getElementById("email-valid").classList.add("nodisplay");
-        document.getElementById("email-invalid").classList.remove("nodisplay");
-      }
-    },
-    validateEmail: function(input) {
-      if (/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(input)) {
-        return true;
-      }
-      return false;
-    }
-  },
-  on: {
-    pageInit: function() {
-      this.load();
+  // Data store
+  const save = () => {
+    let email = $f7.form.convertToData('#email').email;
+    if (validateEmail(email)) {
+      Swal.fire({
+        title: "Neue E-Mail Adresse speichern?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: 'Speichern',
+        cancelButtonText: 'Abbrechen',
+        confirmButtonColor: '#1155BC',
+        preConfirm: () => {
+          return new Promise((resolve) => {
+            api.send("/api/user/email", "POST", {email: email}).then((response) => {
+              Swal.fire({
+                title: "E-Mail Adresse erfolgreich gespeichert.",
+                icon: "success",
+              }).then(() => {
+                load();
+              })
+            });
+          })
+        }
+      });
+    } else {
+      Swal.fire({
+        title: "E-Mail Adresse nicht gültig.",
+        text: "Bitte überprüfe deine Eingabe.",
+        icon: "warning"
+      });
     }
   }
+
+  // Data checking
+  const checkEmail = () => {
+    let email = $f7.form.convertToData('#email').email;
+    if (validateEmail(email)) {
+      emailValid = "";
+      emailInvalid = "nodisplay";
+    } else {
+      emailValid = "nodisplay";
+      emailInvalid = "";
+    }
+    $update();
+  }
+  const validateEmail = (input) => {
+    if (/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(input)) {
+      return true;
+    }
+    return false;
+  }
+
+  $on("pageInit", () => {
+    load();
+  })
+
+  return $render;
 };
 </script>

@@ -1,6 +1,6 @@
 /*
  Error message alert generator
- © 2020 Johannes Kreutz
+ © 2020 - 2021 Johannes Kreutz
  */
 
 // Import libraries

@@ -7,7 +7,7 @@
 
 # Include dependencies
 from flask import Blueprint, request, jsonify
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user, login_required
 import passlib.hash
 
 
@@ -60,3 +60,15 @@ def createSession():
 def removeSession():
     logout_user()
     return "SUCCESS", 200
+
+
+@loginApi.route("/api/login/check", methods=["GET"])
+@login_required
+def checkSession():
+    pCheck = permissionCheck()
+    gMember = groupMembership()
+    return jsonify({
+        "status": "SUCCESS",
+        "permissions": pCheck.get(current_user.username),
+        "groups": gMember.getGroupsOfUser(current_user.username)
+    }), 200

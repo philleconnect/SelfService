@@ -7,3 +7,7 @@
   vertical-align: bottom;
   min-width: 120px;
 }
+
+.ripple-wave {
+  display: none;
+}

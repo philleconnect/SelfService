@@ -1,6 +1,6 @@
 /*
  * Mobile menu open and close
- * © 2020 Johannes Kreutz. All rights reserved.
+ * © 2020 - 2021 Johannes Kreutz. All rights reserved.
  */
 let mobilemenu = {
   status: false,

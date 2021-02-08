@@ -13,7 +13,8 @@ import json
 
 # Class definition
 class bruteforceProtection:
-    steps = [10, 30, 60, 300, 600, 3600]
+    # Block steps in seconds
+    steps = [0, 5, 10, 30, 60, 300, 600, 3600]
 
     def __init__(self):
         self.__r = Redis(host="selfservice-redis")

@@ -1,12 +1,12 @@
 <template>
   <div class="page" data-name="Meine Kurse">
     <p class="headline"><b>MEINE</b>KURSE</p>
-    <div id="button-explanation" class="nodisplay">
+    <div id="button-explanation" class="${buttonExplanation}">
       <div class="standalone-container">
         <i class="f7-icons standalone-icon">doc_text_fill</i><h4 class="standalone-icon-headline">Kursliste als PDF-Datei herunterladen.</h4>
       </div>
       <div class="standalone-container">
-        <i class="f7-icons standalone-icon">table_fill</i><h4 class="standalone-icon-headline">Kursliste als CSV-Datei herunterladen. Diese kann in alle gängige Tabellenkalkulationsprogramme (z.B. Excel, Calc, Numbers) importiert werden.</h4>
+        <i class="f7-icons standalone-icon">table_fill</i><h4 class="standalone-icon-headline">Kursliste als CSV-Datei herunterladen. Diese kann in alle gängige Tabellenkalkulationsprogramme (z.B. LibreOffice Calc, Numbers, Excel) importiert werden.</h4>
       </div>
       <div class="standalone-container">
         <i class="f7-icons standalone-icon">ellipsis</i><h4 class="standalone-icon-headline">Kursliste aufrufen.</h4>
@@ -17,10 +17,36 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th id="table-actions" class="nodisplay">Aktionen</th>
+            <th id="table-actions" class="${tableActions}">Aktionen</th>
           </tr>
         </thead>
-        <tbody id="table-content"></tbody>
+        <tbody>
+          ${courses && $h`
+            ${courses.map((course) => $h`
+              <tr>
+                <td>${course.name}</td>
+                ${detailView && $h`
+                  <td>
+                    <a href="#" @click="${() => getCsv(course.id)}">
+                      <i class="f7-icons icon-default">doc_text_fill</i>
+                    </a>
+                    <span>\u00A0\u00A0\u00A0</span>
+                    <a href="#" @click="${() => getPdf(course.id)}">
+                      <i class="f7-icons icon-default">table_fill</i>
+                    </a>
+                    <span>\u00A0\u00A0\u00A0</span>
+                    <a href="#" @click="${() => openCourse(course.id)}">
+                      <i class="f7-icons icon-default">ellipsis</i>
+                    </a>
+                  </td>
+                `}
+              </tr>
+            `)}
+          `}
+          ${!courses && $h`
+            Keine Kurse vorhanden.
+          `}
+        </tbody>
       </table>
     </div>
   </div>
@@ -30,92 +56,80 @@ import api from '../../js/api.js';
 import preloader from '../../js/preloader.js';
 import Swal from 'sweetalert2';
 import tableSearch from '../../js/tablesearch.js';
-let search = null;
-export default {
-  methods: {
-    // Data loading
-    load: function() {
-      preloader.toggle("LADEN");
-      api.send("/api/course/my", "GET", {}).then(function(response) {
-        response = JSON.parse(response);
-        api.send("/api/permissions/courselist", "GET", {}).then(function(permission) {
-          preloader.hide();
-          if (permission == "GRANTED") {
-            document.getElementById("table-actions").classList.remove("nodisplay");
-            document.getElementById("button-explanation").classList.remove("nodisplay");
-          }
-          let rows = "";
-          let style = false;
-          for (const course of response) {
-            rows += style ? "<tr class=\"alt\">" : "<tr>";
-            style = !style;
-            rows += "<td>" + course.name + "</td>";
-            if (permission == "GRANTED") {
-              rows += "<td><a href=\"#\" data-id=\"" + course["id"] + "\" class=\"get-pdf\"><i class=\"f7-icons icon-default\">doc_text_fill</i></a>&nbsp;&nbsp;&nbsp;<a href=\"#\" data-id=\"" + course["id"] + "\" class=\"get-csv\"><i class=\"f7-icons icon-default\">table_fill</i></a>&nbsp;&nbsp;&nbsp;<a href=\"#\" onclick=\"window.app.views.main.router.navigate('/courses/" + course["id"] + "')\"><i class=\"f7-icons icon-default\">ellipsis</i></a></td>";
-            }
-            rows += "</tr>";
-          }
-          document.getElementById("table-content").innerHTML = (rows != "") ? rows : "Keine Kurse vorhanden.";
-          if (permission == "GRANTED") {
-            for (const element of document.getElementsByClassName("get-pdf")) {
-              element.addEventListener("click", function(e) {
-                this.getPdf(e.target.parentElement.dataset.id);
-              }.bind(this));
-            }
-            for (const element of document.getElementsByClassName("get-csv")) {
-              element.addEventListener("click", function(e) {
-                this.getCsv(e.target.parentElement.dataset.id);
-              }.bind(this));
-            }
-          }
-          this.loadSearch();
-        }.bind(this));
-      }.bind(this));
-    },
+import my from '../../js/my.js';
+import { saveAs } from 'file-saver';
+export default (props, {$f7, $on, $update}) => {
+  let search = null;
+  let courses = null;
+  let detailView = false;
 
-    // Data search
-    loadSearch: function() {
-      if (search != null) {
-        search.disable();
-      }
-      search = new tableSearch("courses", {
-        col_1: "none"
-      });
-    },
+  let tableActions = "nodisplay";
+  let buttonExplanation = "nodisplay";
 
-    // Data download
-    getPdf: function(id) {
-      this.downloadHelper("pdf", id);
-    },
-    getCsv: function(id) {
-      this.downloadHelper("csv", id);
-    },
-    downloadHelper: function(type, id) {
-      Swal.fire({
-        title: type.toUpperCase() + "-Datei wird erstellt...",
-        showCancelButton: false,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        willOpen: function() {
-          Swal.showLoading()
-          api.send("/api/course/" + type + "/" + id, "GET", {}).then(function(response) {
-            response = JSON.parse(response);
-            let encodedUri = encodeURI(response.content);
-            let link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "Kursliste_" + response.name + "." + type);
-            document.body.appendChild(link);
-            link.click();
-            Swal.close();
-          }.bind(this));
-        }.bind(this)
+  // Data loading
+  const load = () => {
+    preloader.toggle("LADEN");
+    api.send("/api/course/my", "GET", {}).then((response) => {
+      response = JSON.parse(response);
+      courses = response.length == 0 ? null : response;
+      api.send("/api/permissions/courselist", "GET", {}).then((permission) => {
+        preloader.hide();
+        if (permission == "GRANTED") {
+          tableActions = "";
+          buttonExplanation = "";
+          detailView = true;
+        }
+        loadSearch();
+        $update();
       });
-    }
-  },
-  on: {
-    pageInit: function() {
-      this.load();
-    }
+    });
   }
+
+  // Detail view
+  const openCourse = (id) => {
+    my.app.views.main.router.navigate("/courses/" + id);
+  }
+
+  // Data search
+  const loadSearch = () => {
+    if (search != null) {
+      search.disable();
+    }
+    search = new tableSearch("courses", {
+      col_1: "none"
+    });
+  }
+
+  // Data download
+  const getPdf = (id) => {
+    downloadHelper("pdf", id);
+  }
+  const getCsv = (id) => {
+    downloadHelper("csv", id);
+  }
+  const downloadHelper = (type, id) => {
+    Swal.fire({
+      title: type.toUpperCase() + "-Datei wird erstellt...",
+      showCancelButton: false,
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      willOpen: () => {
+        Swal.showLoading();
+        api.send("/api/course/" + type + "/" + id, "GET", {}).then((response) => {
+          response = JSON.parse(response);
+          let encodedUri = encodeURI(response.content);
+          saveAs(encodedUri, "Kursliste_" + response.name + "." + type);
+          Swal.close();
+        });
+      }
+    });
+  }
+
+  $on("pageInit", () => {
+    load();
+  })
+
+  return $render;
 };
 </script>

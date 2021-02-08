@@ -1,7 +1,50 @@
-
 <template>
-
+  <div id="app">
+    <div class="loader-background loader-invisible" id="loader-background">
+      <div class="loader-container">
+        <table class="loader-table">
+          <tr>
+            <td><div class="loader"></div></td>
+          </tr>
+          <tr>
+            <td class="loader-text" id="loader-text">SPEICHERN</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div role="navigation" id="menu" class="nav-collapse">
+      <div class="top">
+        <img src="static/logo.png"/>
+        <li>
+          <b>PHILLE</b>CONNECT
+        </li>
+      </div>
+      <ul id="menue"></ul>
+      <p id="timeout"></p>
+    </div>
+    <div class="views">
+      <div class="view view-main safe-areas main" role="main" data-url="/">
+        <div class="mobile-menu-toggle" id="mobile-toggle" @click="${toggleMenu}">
+          <a class="hamburger hamburger--spin nav-toggle" href="#nav" id="hamburger">
+            <div class="hamburger-box">
+              <div class="hamburger-inner"></div>
+            </div>
+          </a>
+        </div>
+        <noscript>
+          <p>Dein Browser unterstützt kein JavaScript oder JavaScript ist ausgeschaltet. Du musst JavaScript aktivieren, um diese Seite zu verwenden!</p>
+        </noscript>
+      </div>
+    </div>
+  </div>
 </template>
 <script>
-  export default {}
+  import mobilemenu from './js/mobile-menu.js';
+  export default () => {
+    const toggleMenu = () => {
+      mobilemenu.toggle();
+    }
+
+    return $render;
+  }
 </script>

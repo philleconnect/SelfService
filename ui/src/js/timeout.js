@@ -1,6 +1,6 @@
 /*
  Timeout
- © 2020 Johannes Kreutz
+ © 2020 - 2021 Johannes Kreutz
  */
 
 // Import modules
@@ -27,11 +27,11 @@ let timeout = {
   },
   updateClock: function() {
     var t = this.getTimeRemaining(this.endtime);
-    this.clock.innerHTML = 'Auto-Logout in '+t.minutes+':'+t.seconds;
+    this.clock.innerHTML = 'Auto-Logout in ' + t.minutes + ':' + t.seconds;
     if (t.total <= 0) {
       clearInterval(this.timeinterval);
       api.send("/api/logout", "POST", {}).then(function(response) {
-        window.location.reload();
+        window.location.href = "/";
       }.bind(this))
     }
   },

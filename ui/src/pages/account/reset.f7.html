@@ -20,62 +20,73 @@
                 <th>Nutzer</th>
               </tr>
             </thead>
-            <tbody id="users"></tbody>
+            <tbody>
+              ${users && $h`
+                ${users.map((user) => $h`
+                  <tr>
+                    <td><a href="#" @click="${() => finish1(user.id)}" class="user-select">${user.name}</a></td>
+                  </tr>
+                `)}
+              `}
+              ${!users && $h`
+                Keine Benutzer vorhanden.
+              `}
+            </tbody>
           </table>
         </div>
       </div>
       <div class="steps-content-box disabled" id="step-2">
         <h3>Bitte geben Sie hier ein neues Passwort ein:</h3>
-        <div class="input-group">
-          <input type="password" id="password1" required @input="checkPassword()"/>
+        <form id="password1" class="input-group">
+          <input type="password" name="password1" required @input="${checkPassword}"/>
           <span class="input-bar"></span>
           <label>Neues Passwort</label>
-        </div>
+        </form>
         <p>Aus Sicherheitsgründen muss das neue Passwort folgende Voraussetzungen erfüllen:</p>
         <div class="standalone-container">
-          <i id="length-valid" class="f7-icons standalone-icon nodisplay" style="color: green;">checkmark_circle_fill</i>
-          <i id="length-invalid" class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i>
+          <i class="f7-icons standalone-icon ${lengthValid}" style="color: green;">checkmark_circle_fill</i>
+          <i class="f7-icons standalone-icon ${lengthInvalid}" style="color: red;">xmark_circle_fill</i>
           <h4 class="standalone-icon-headline">Mindestens 8 Zeichen.</h4>
         </div>
         <div class="standalone-container">
-          <i id="lowercase-valid" class="f7-icons standalone-icon nodisplay" style="color: green;">checkmark_circle_fill</i>
-          <i id="lowercase-invalid" class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i>
+          <i class="f7-icons standalone-icon ${lowercaseValid}" style="color: green;">checkmark_circle_fill</i>
+          <i class="f7-icons standalone-icon ${lowercaseInvalid}" style="color: red;">xmark_circle_fill</i>
           <h4 class="standalone-icon-headline">Mindestens einen Kleinbuchstaben.</h4>
         </div>
         <div class="standalone-container">
-          <i id="uppercase-valid" class="f7-icons standalone-icon nodisplay" style="color: green;">checkmark_circle_fill</i>
-          <i id="uppercase-invalid" class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i>
+          <i class="f7-icons standalone-icon ${uppercaseValid}" style="color: green;">checkmark_circle_fill</i>
+          <i class="f7-icons standalone-icon ${uppercaseInvalid}" style="color: red;">xmark_circle_fill</i>
           <h4 class="standalone-icon-headline">Mindestens einen Großbuchstaben.</h4>
         </div>
         <div class="standalone-container">
-          <i id="number-valid" class="f7-icons standalone-icon nodisplay" style="color: green;">checkmark_circle_fill</i>
-          <i id="number-invalid" class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i>
+          <i class="f7-icons standalone-icon ${numberValid}" style="color: green;">checkmark_circle_fill</i>
+          <i class="f7-icons standalone-icon ${numberInvalid}" style="color: red;">xmark_circle_fill</i>
           <h4 class="standalone-icon-headline">Mindestens eine Zahl.</h4>
         </div>
-        <div class="input-group">
-          <input type="password" id="password2" required @input="checkPassword()"/>
+        <form id="password2" class="input-group">
+          <input type="password" name="password2" required @input="${checkPassword}"/>
           <span class="input-bar"></span>
           <label>Neues Passwort wiederholen</label>
-        </div>
-        <div id="same" class="standalone-container nodisplay">
+        </form>
+        <div class="standalone-container ${same}">
           <i class="f7-icons standalone-icon" style="color: green;">checkmark_circle_fill</i><h4 class="standalone-icon-headline">Passwörter stimmen überein.</h4>
         </div>
-        <div id="not-same" class="standalone-container nodisplay">
+        <div class="standalone-container ${notSame}">
           <i class="f7-icons standalone-icon" style="color: red;">xmark_circle_fill</i><h4 class="standalone-icon-headline">Passwörter stimmen nicht überein.</h4>
         </div>
         <br />
-        <button @click="back()">Zurück</button>
-        <button @click="finish2()">Weiter</button>
+        <button @click="${back}">Zurück</button>
+        <button @click="${finish2}">Weiter</button>
       </div>
       <div class="steps-content-box disabled" id="step-3">
         <h3>Bitte geben Sie zur Authentifizierung ihr Passwort ein:</h3>
-        <div class="input-group">
-          <input type="password" id="passwd" required @input="checkPassword()"/>
+        <form id="passwd" class="input-group">
+          <input type="password" name="passwd" required @input="checkPassword()"/>
           <span class="input-bar"></span>
           <label>Ihr Passwort</label>
-        </div>
+        </form>
         <br />
-        <button @click="reset()">Passwort zurücksetzen</button>
+        <button @click="${reset}">Passwort zurücksetzen</button>
       </div>
     </div>
   </div>
@@ -87,110 +98,153 @@ import preloader from '../../js/preloader.js';
 import Swal from 'sweetalert2';
 import progress from '../../js/progress.js';
 import tableSearch from '../../js/tablesearch.js';
-let users = null;
-let selectedUser = null;
-let search = null;
-export default {
-  methods: {
-    // Data loading
-    load: function() {
-      preloader.toggle("LADEN");
-      progress.setup();
-      api.send("/api/user/resetlist", "GET", {}).then(function(response) {
-        response = JSON.parse(response);
-        preloader.hide();
-        users = response;
-        let rows = "";
-        let style = false;
-        for (const user of users) {
-          rows += style ? "<tr class=\"alt\">" : "<tr>";
-          style = !style;
-          rows += "<td><a href=\"#\" data-id=\"" + user.id + "\" class=\"user-select\">" + user.name + "</a></td></tr>";
-        }
-        document.getElementById("users").innerHTML = rows;
-        for (const element of document.getElementsByClassName("user-select")) {
-          element.addEventListener("click", function(e) {
-            this.finish1(e.target.dataset.id);
-          }.bind(this));
-        }
-        this.loadSearch();
-      }.bind(this));
-    },
+import my from '../../js/my.js';
+export default (props, {$f7, $on, $update}) => {
+  let users = null;
+  let selectedUser = null;
+  let search = null;
 
-    // Check password requirements and equality
-    checkPassword: function() {
-      passwordcheck.check();
-    },
+  let same = "nodisplay";
+  let notSame = "nodisplay";
+  let lengthValid = "nodisplay";
+  let lengthInvalid = "";
+  let lowercaseValid = "nodisplay";
+  let lowercaseInvalid = "";
+  let uppercaseValid = "nodisplay";
+  let uppercaseInvalid = "";
+  let numberValid = "nodisplay";
+  let numberInvalid = "";
+
+  // Data loading
+  const load = () => {
+    preloader.toggle("LADEN");
+    progress.setup();
+    api.send("/api/user/resetlist", "GET", {}).then((response) => {
+      response = JSON.parse(response);
+      preloader.hide();
+      users = response.length == 0 ? null : response;
+      loadSearch();
+      $update();
+    });
+  }
+
+  // Check password requirements and equality
+  const checkPassword = () => {
+    let p1 = $f7.form.convertToData('#password1').password1;
+    let p2 = $f7.form.convertToData('#password2').password2;
+    if (passwordcheck.checkEquality(p1, p2)) {
+      same = "";
+      notSame = "nodisplay";
+    } else {
+      same = "nodisplay";
+      notSame = "";
+    }
+    if (passwordcheck.check8OrMore(p1)) {
+      lengthValid = "";
+      lengthInvalid = "nodisplay";
+    } else {
+      lengthValid = "nodisplay";
+      lengthInvalid = "";
+    }
+    if (passwordcheck.checkLowercase(p1)) {
+      lowercaseValid = "";
+      lowercaseInvalid = "nodisplay";
+    } else {
+      lowercaseValid = "nodisplay";
+      lowercaseInvalid = "";
+    }
+    if (passwordcheck.checkUppercase(p1)) {
+      uppercaseValid = "";
+      uppercaseInvalid = "nodisplay";
+    } else {
+      uppercaseValid = "nodisplay";
+      uppercaseInvalid = "";
+    }
+    if (passwordcheck.checkNumber(p1)) {
+      numberValid = "";
+      numberInvalid = "nodisplay";
+    } else {
+      numberValid = "nodisplay";
+      numberInvalid = "";
+    }
+    $update();
+  }
 
     // Progress control
-    finish1: function(id) {
-      selectedUser = id;
+  const finish1 = (id) => {
+    selectedUser = id;
+    progress.next();
+  }
+  const finish2 = () => {
+    let p1 = $f7.form.convertToData('#password1').password1;
+    let p2 = $f7.form.convertToData('#password2').password2;
+    if (!passwordcheck.checkEquality(p1, p2)) {
+      Swal.fire({
+        title: "Die Passwörter stimmen nicht überein.",
+        text: "Bitte überprüfen Sie die eingegebenen Passwörter.",
+        icon: "warning"
+      })
+    } else if (!passwordcheck.check8OrMore(p1) || !passwordcheck.checkLowercase(p1) || !passwordcheck.checkUppercase(p1) || !passwordcheck.checkNumber(p1)) {
+      Swal.fire({
+        title: "Das neue Passwort erfüllt nicht alle Voraussetzungen.",
+        text: "Bitte überprüfen Sie das neue Passwort.",
+        icon: "warning"
+      })
+    } else {
       progress.next();
-    },
-    finish2: function() {
-      if (!passwordcheck.checkEquality()) {
-        Swal.fire({
-          title: "Die Passwörter stimmen nicht überein.",
-          text: "Bitte überprüfen Sie die eingegebenen Passwörter.",
-          icon: "warning"
-        })
-      } else if (!passwordcheck.check8OrMore() || !passwordcheck.checkLowercase() || !passwordcheck.checkUppercase() || !passwordcheck.checkNumber()) {
-        Swal.fire({
-          title: "Das neue Passwort erfüllt nicht alle Voraussetzungen.",
-          text: "Bitte überprüfen Sie das neue Passwort.",
-          icon: "warning"
-        })
-      } else {
-        progress.next();
-      }
-    },
-    back: function() {
-      progress.prev();
-    },
-
-    // Data search
-    loadSearch: function() {
-      if (search != null) {
-        search.disable();
-      }
-      search = new tableSearch("user-table", {});
-    },
-
-    // Reset password
-    reset: function() {
-      if (document.getElementById("passwd").value == "") {
-        Swal.fire({
-          title: "Bitte geben Sie ihr Passwort zur Authentifizierung ein.",
-          icon: "warning"
-        })
-      } else {
-        Swal.fire({
-          title: "Passwort wirklich zurücksetzen?",
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonText: 'Passwort zurücksetzen',
-          cancelButtonText: 'Abbrechen',
-          confirmButtonColor: '#1155BC',
-          preConfirm: function() {
-            return new Promise(function(resolve) {
-              api.send("/api/user/resetpassword/" + selectedUser, "POST", {password1: document.getElementById("password1").value, password2: document.getElementById("password2").value, passwd: document.getElementById("passwd").value}).then(function(response) {
-                Swal.fire({
-                  title: "Passwort erfolgreich zurückgesetzt.",
-                  icon: "success",
-                }).then(function() {
-                  window.app.views.main.router.navigate("/account");
-                }.bind(this));
-              }.bind(this));
-            }.bind(this))
-          }.bind(this)
-        });
-      }
-    }
-  },
-  on: {
-    pageInit: function() {
-      this.load();
     }
   }
+  const back = () => {
+    progress.prev();
+  }
+
+  // Data search
+  const loadSearch = () => {
+    if (search != null) {
+      search.disable();
+    }
+    search = new tableSearch("user-table", {});
+  }
+
+  // Reset password
+  const reset = () => {
+    let p1 = $f7.form.convertToData('#password1').password1;
+    let p2 = $f7.form.convertToData('#password2').password2;
+    let checkPw = $f7.form.convertToData('#passwd').passwd;
+    if (checkPw == "") {
+      Swal.fire({
+        title: "Bitte geben Sie ihr Passwort zur Authentifizierung ein.",
+        icon: "warning"
+      })
+    } else {
+      Swal.fire({
+        title: "Passwort wirklich zurücksetzen?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: 'Passwort zurücksetzen',
+        cancelButtonText: 'Abbrechen',
+        confirmButtonColor: '#1155BC',
+        preConfirm: () => {
+          return new Promise((resolve) => {
+            Swal.showLoading();
+            api.send("/api/user/resetpassword/" + selectedUser, "POST", {password1: p1, password2: p2, passwd: checkPw}).then((response) => {
+              Swal.fire({
+                title: "Passwort erfolgreich zurückgesetzt.",
+                icon: "success",
+              }).then(() => {
+                my.app.views.main.router.navigate("/account");
+              });
+            });
+          })
+        }
+      });
+    }
+  }
+
+  $on("pageInit", () => {
+    load();
+  })
+
+  return $render;
 };
 </script>

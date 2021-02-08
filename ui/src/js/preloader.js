@@ -1,7 +1,10 @@
 /*
  * Preloader JS by Johannes Kreutz for PhilleConnect Backend
- * © 2019 - 2020 Johannes Kreutz.
+ * © 2019 - 2021 Johannes Kreutz.
  */
+
+import DOMPurify from 'dompurify';
+
 let preloader = {
     isVisible: false,
     toggle: function(text) {
@@ -17,7 +20,7 @@ let preloader = {
             this.isVisible = true;
             document.getElementById('loader-background').style.display = 'flex';
             if (text != '') {
-                document.getElementById('loader-text').innerHTML = text;
+                document.getElementById('loader-text').innerHTML = DOMPurify.sanitize(text);
             } else {
                 document.getElementById('loader-text').innerHTML = 'SPEICHERN';
             }

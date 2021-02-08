@@ -2,53 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: content:">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
-
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="format-detection" content="telephone=no">
-  <title>PhilleConnect SelfService</title>
+  <title>SelfService</title>
   <meta name="robots" content="noindex">
-
+  <link rel="icon" href="/static/favicon.png" type="image/x-icon">
 </head>
 <body>
-  <div id="app">
-    <div class="loader-background loader-invisible" id="loader-background">
-      <div class="loader-container">
-        <table class="loader-table">
-          <tr>
-            <td><div class="loader"></div></td>
-          </tr>
-          <tr>
-            <td class="loader-text" id="loader-text">SPEICHERN</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-    <div role="navigation" id="menu" class="nav-collapse">
-      <div class="top">
-        <img src="static/logo.png">
-        <li>
-          <b>PHILLE</b>CONNECT
-        </li>
-      </div>
-      <ul id="menue"></ul>
-      <p id="timeout"></p>
-    </div>
-    <div class="views">
-      <div class="view view-main safe-areas main" role="main" data-url="/">
-        <div class="mobile-menu-toggle" id="mobile-toggle" onclick="window.mobilemenu.toggle()">
-          <a class="hamburger hamburger--spin nav-toggle" href="#nav" id="hamburger">
-            <div class="hamburger-box">
-              <div class="hamburger-inner"></div>
-            </div>
-          </a>
-        </div>
-        <noscript>
-          <p>Dein Browser unterstützt kein JavaScript oder JavaScript ist ausgeschaltet. Du musst JavaScript aktivieren, um diese Seite zu verwenden!</p>
-        </noscript>
-      </div>
-    </div>
-  </div>
-
+  <div id="app"></div>
 </body>
 </html>
