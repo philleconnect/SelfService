@@ -27,11 +27,11 @@
                 <td>${course.name}</td>
                 ${detailView && $h`
                   <td>
-                    <a href="#" @click="${() => getCsv(course.id)}">
+                    <a href="#" @click="${() => getPdf(course.id)}">
                       <i class="f7-icons icon-default">doc_text_fill</i>
                     </a>
                     <span>\u00A0\u00A0\u00A0</span>
-                    <a href="#" @click="${() => getPdf(course.id)}">
+                    <a href="#" @click="${() => getCsv(course.id)}">
                       <i class="f7-icons icon-default">table_fill</i>
                     </a>
                     <span>\u00A0\u00A0\u00A0</span>
