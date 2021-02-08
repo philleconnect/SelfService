@@ -19,7 +19,7 @@ fi
 # Compile frontend
 pushd ui
 npm install
-npm run build-prod
+npm run build
 popd
 
 # Create ui folder and copy compiled code over

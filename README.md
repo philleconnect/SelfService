@@ -14,8 +14,7 @@ To setup your development environment, go tu `/ui` and run `npm install`. Then u
 
 * 🔥 `start` - run development server
 * 🔧 `dev` - run development server
-* 🔧 `build-dev` - build web app using development mode (faster build without minification and optimization)
-* 🔧 `build-prod` - build web app for production
+* 🔧 `build` - build web app for production
 
 ## Backend
 The backend code is located at `/selfservice/selfservice`.
