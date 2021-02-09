@@ -15,7 +15,6 @@ import my from './my.js';
 // Module definition
 let api = {
   send: function(url, type, data, disableErrorMessages) {
-    url = "https://172.16.0.27:450" + url
     return new Promise(function(resolve, reject) {
       let request = new XMLHttpRequest;
       request.addEventListener("load", function(event) {
