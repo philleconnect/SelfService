@@ -227,13 +227,25 @@ export default (props, {$f7, $on, $update}) => {
         preConfirm: () => {
           return new Promise((resolve) => {
             Swal.showLoading();
-            api.send("/api/user/resetpassword/" + selectedUser, "POST", {password1: p1, password2: p2, passwd: checkPw}).then((response) => {
-              Swal.fire({
-                title: "Passwort erfolgreich zurückgesetzt.",
-                icon: "success",
-              }).then(() => {
-                my.app.views.main.router.navigate("/account");
-              });
+            api.send("/api/user/resetpassword/" + selectedUser, "POST", {password1: p1, password2: p2, passwd: checkPw}, true).then((response) => {
+              if (response.status == 200) {
+                Swal.fire({
+                  title: "Passwort erfolgreich zurückgesetzt.",
+                  icon: "success",
+                }).then(() => {
+                  my.app.views.main.router.navigate("/account");
+                });
+              } else if (response.status == 401) {
+                Swal.fire({
+                  title: "Ihr Passwort ist falsch.",
+                  icon: "error",
+                });
+              } else {
+                Swal.fire({
+                  title: "Es ist ein Fehler aufgetreten.",
+                  icon: "error",
+                });
+              }
             });
           })
         }
