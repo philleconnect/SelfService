@@ -40,6 +40,9 @@ my.app = new Framework7({
   name: 'PhilleConnect SelfService', // App name
   el: '#app', // App root element
   component: App, // App main component
+  touch: {
+    mdTouchRipple: false,
+  },
 
   // App routes
   routes: routes,
