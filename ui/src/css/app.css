@@ -8,6 +8,6 @@
   min-width: 120px;
 }
 
-.ripple-wave {
-  display: none;
+.main button {
+  margin: 5px;
 }

@@ -93,7 +93,7 @@
   	transition: opacity 0.3s ease;
 }
 .steps-content-box button {
-    margin-top: 15px;
+    margin-top: 15px !important;
 }
 .steps-content-box.current {
     opacity: 1;
