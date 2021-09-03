@@ -50,10 +50,10 @@ def getCourseCSV(id):
         return "ERR_NOT_ALLOWED", 403
     csv = {
         "name": cl.getCourseName(id),
-        "content": "data:text/csv;charset=utf-8,Vorname;Nachname;E-Mail;Geburtsdatum\n"
+        "content": "data:text/csv;charset=utf-8,Nachname;Vorname;E-Mail;Geburtsdatum\n"
     }
     for member in cl.getCourseDetails(id, True):
-        row = member["firstname"] + ";" + member["lastname"] + ";" + member["email"] + ";" + member["birthdate"] + "\n"
+        row = member["lastname"] + ";" + member["firstname"] + ";" + member["email"] + ";" + member["birthdate"] + "\n"
         csv["content"] += row
     return jsonify(csv), 200
 

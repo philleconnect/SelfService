@@ -1,6 +1,6 @@
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
-MAINTAINER Johannes Kreutz <sc@jkm-marburg.de>
+MAINTAINER Dirk Winkel <it@polarwinkel.de>
 
 ENV DEBIAN_FRONTEND noninteractive
 
