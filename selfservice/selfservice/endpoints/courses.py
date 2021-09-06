@@ -69,8 +69,8 @@ def getCoursePDF(id):
     pdf = {"name": courseName, "content": "data:application/pdf;base64,"}
     tableCode = ""
     style = False
-    for member in cl.getCourseDetails(id):
-        name = member["name"] if not member["name"] == "" else "-"
+    for member in cl.getCourseDetails(id, True):
+        name = member["lastname"]+', '+member["firstname"] if not member["lastname"] == "" else "-"
         email = member["email"] if not member["email"] == "" else "-"
         birthdate = member["birthdate"] if not member["birthdate"] == "" else "-"
         cssClass = " class=\"alt\"" if style else ""
