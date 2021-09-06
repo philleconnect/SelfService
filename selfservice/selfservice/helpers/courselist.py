@@ -15,7 +15,7 @@ def getCourseDetails(id, separateNames=False):
     if separateNames:
         dbconn.execute("SELECT lastname, firstname, email, DATE_FORMAT(birthdate, '%d.%m.%Y') AS birthdate FROM people P INNER JOIN people_has_groups PHG ON P.id = PHG.people_id INNER JOIN groups G ON G.id = PHG.group_id WHERE G.id = %s ORDER BY lastname, firstname", (id,))
     else:
-        dbconn.execute("SELECT preferredname AS name, email, DATE_FORMAT(birthdate, '%d.%m.%Y') AS birthdate FROM people P INNER JOIN people_has_groups PHG ON P.id = PHG.people_id INNER JOIN groups G ON G.id = PHG.group_id WHERE G.id = %s ORDER BY name", (id,))
+        dbconn.execute("SELECT preferredname AS name, lastname, firstname, email, DATE_FORMAT(birthdate, '%d.%m.%Y') AS birthdate FROM people P INNER JOIN people_has_groups PHG ON P.id = PHG.people_id INNER JOIN groups G ON G.id = PHG.group_id WHERE G.id = %s ORDER BY lastname, firstname", (id,))
     return dbconn.fetchall()
 
 
